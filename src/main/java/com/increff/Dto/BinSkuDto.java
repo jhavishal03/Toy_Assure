@@ -1,35 +1,20 @@
 package com.increff.Dto;
 
 
+import com.opencsv.bean.CsvBindByPosition;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+@Data
+@RequiredArgsConstructor
+@Builder
 public class BinSkuDto {
+    @CsvBindByPosition(position = 0)
     private Long binId;
+    @CsvBindByPosition(position = 1)
     private Long globalSkuId;
+    @CsvBindByPosition(position = 2)
     private Long quantity;
 
-    public BinSkuDto() {
-    }
-
-    public Long getBinId() {
-        return binId;
-    }
-
-    public void setBinId(Long binId) {
-        this.binId = binId;
-    }
-
-    public Long getGlobalSkuId() {
-        return globalSkuId;
-    }
-
-    public void setGlobalSkuId(Long globalSkuId) {
-        this.globalSkuId = globalSkuId;
-    }
-
-    public Long getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Long quantity) {
-        this.quantity = quantity;
-    }
 }

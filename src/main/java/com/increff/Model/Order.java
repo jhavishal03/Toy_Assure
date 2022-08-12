@@ -1,81 +1,35 @@
 package com.increff.Model;
 
 import com.increff.Constants.Status;
-import com.sun.istack.NotNull;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
-@Entity(name = "Toy_Order")
-public class Order {
+@Entity
+@Table(name = "assure_Order")
+@Builder
+@RequiredArgsConstructor
+@Data
+public class Order extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
-    private Long clientId;
-    private Long customerId;
-    private Long channelId;
     @NotNull
+    private Long clientId;
+    @Min(0)
+    private Long customerId;
+    @Min(0)
+    private Long channelId;
+    @NotEmpty
     @Column(unique = true)
     private String channelOrderId;
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
-    public Order() {
-    }
-
-    public Order(Long clientId, Long customerId, Long channelId, String channelOrderId, Status status) {
-        this.clientId = clientId;
-        this.customerId = customerId;
-        this.channelId = channelId;
-        this.channelOrderId = channelOrderId;
-        this.status = status;
-    }
-
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
-    public Long getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
-
-    public Long getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(Long channelId) {
-        this.channelId = channelId;
-    }
-
-    public String getChannelOrderId() {
-        return channelOrderId;
-    }
-
-    public void setChannelOrderId(String channelOrderId) {
-        this.channelOrderId = channelOrderId;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 }
 

@@ -13,7 +13,10 @@ public class BinConverter {
     public List<BinSku> convertBinSkuDtoToBin(List<BinSkuDto> binSkuDtos) {
         List<BinSku> result = new ArrayList<>();
         for (BinSkuDto bin : binSkuDtos) {
-            result.add(new BinSku(bin.getBinId(), bin.getGlobalSkuId(), bin.getQuantity()));
+            result.add(
+                    BinSku.builder().binSkuId(bin.getBinId()).
+                            globalSkuId(bin.getGlobalSkuId()).quantity(bin.getQuantity()).build());
+
         }
         return result;
     }

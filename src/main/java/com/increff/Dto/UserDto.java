@@ -2,7 +2,10 @@ package com.increff.Dto;
 
 import com.increff.Constants.UserType;
 
+import javax.validation.constraints.NotEmpty;
+
 public class UserDto {
+    @NotEmpty
     private String name;
     private UserType type;
 

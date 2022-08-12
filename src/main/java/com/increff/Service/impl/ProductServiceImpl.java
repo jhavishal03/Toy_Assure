@@ -34,12 +34,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> uploadProductDetailsForClient(Long clientId, MultipartFile file) throws IOException {
-
+        Optional<User> user = Optional.ofNullable(userDao.findUserById(clientId));
+        if (!user.isPresent()) {
+            throw new UserException("Client not present with clientId" + clientId);
+        }
+        if (!user.get().getType().getValue().equals("Client")) {
+            throw new UserException("Given user is not client");
+        }
         List<ProductDto> products = null;
         try {
             List<Object> product = new CsvToBeanBuilder<>(new InputStreamReader(new ByteArrayInputStream(file.getBytes()), "UTF8"))
                     .withType(ProductDto.class).withSkipLines(1).build().parse();
-            Optional<User> savedUser = Optional.ofNullable(userDao.findUserById(clientId));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
 
     private void updateGlobalIdForExistingProduct(Long clientId, List<Product> productsToBeUpdated) {
         for (Product product : productsToBeUpdated) {
-            Long id = productDao.getGlobalIdForProductByClientSkuIdAndClientId(clientId, product.getClientSkuId());
+            Long id = productDao.getGlobalIdForProductByClientIdAndClientSkuId(clientId, product.getClientSkuId());
             product.setGlobalSkuId(id);
             productDao.updateProductsDataForClient(product);
         }

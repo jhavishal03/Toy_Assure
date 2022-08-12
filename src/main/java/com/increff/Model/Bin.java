@@ -1,15 +1,17 @@
 package com.increff.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
-public class Bin {
+@Table(name = "assure_Bin")
+public class Bin extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long binId;
+
+
+    public Bin() {
+    }
 
     public Long getBinId() {
         return binId;
@@ -17,8 +19,5 @@ public class Bin {
 
     public void setBinId(Long binId) {
         this.binId = binId;
-    }
-
-    public Bin() {
     }
 }

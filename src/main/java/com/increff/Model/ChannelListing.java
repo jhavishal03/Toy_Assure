@@ -1,60 +1,30 @@
 package com.increff.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
-public class ChannelListing {
+@Table(name = "assure_ChannelListing")
+@Builder
+@RequiredArgsConstructor
+@Data
+public class ChannelListing extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long channelListingId;
+    @NotNull
     private Long channelId;
-    private Long channelSkuId;
+    @NotEmpty
+    private String channelSkuId;
+    @NotNull
     private Long clientId;
+    @Min(0)
     private Long globalSkuId;
 
-    public ChannelListing() {
-    }
-
-    public Long getChannelListingId() {
-        return channelListingId;
-    }
-
-    public void setChannelListingId(Long channelListingId) {
-        this.channelListingId = channelListingId;
-    }
-
-    public Long getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(Long channelId) {
-        this.channelId = channelId;
-    }
-
-    public Long getChannelSkuId() {
-        return channelSkuId;
-    }
-
-    public void setChannelSkuId(Long channelSkuId) {
-        this.channelSkuId = channelSkuId;
-    }
-
-    public Long getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
-    }
-
-    public Long getGlobalSkuId() {
-        return globalSkuId;
-    }
-
-    public void setGlobalSkuId(Long globalSkuId) {
-        this.globalSkuId = globalSkuId;
-    }
 }

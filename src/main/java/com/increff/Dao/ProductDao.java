@@ -15,9 +15,10 @@ public class ProductDao extends AbstractDao {
     private static String getGlobalIdByClientSkuIdAndClientId =
             "Select p.globalSkuId from Product p where clientId=:id and clientSkuId=:skuId";
 
-
+    private static String checkProductExistByClientSkuAndClientId = "select count(p) from Product p where clientId=:id and clientSkuId=:skuId";
     private static String checkGlobalIdExistOrNot =
             "select globalSkuId from Product p";
+    private static String findMrpByGlobalSkuId = "select mrp from Product where globalSkuId=:id";
 
 
     public List<String> getClientSkuIdByClientId(long id) {
@@ -36,13 +37,27 @@ public class ProductDao extends AbstractDao {
         return res;
     }
 
+    public Double findMrpByGlobalSkuID(Long id) {
+        TypedQuery<Double> query = getQuery(findMrpByGlobalSkuId, Double.class);
+
+        query.setParameter("id", id);
+        return getSingle(query);
+    }
+
     public List<Long> getGlobalSkuIds() {
         TypedQuery<Long> query = getQuery(checkGlobalIdExistOrNot, Long.class);
         return query.getResultList();
     }
 
-    public Long getGlobalIdForProductByClientSkuIdAndClientId(Long id, String skuId) {
+    public Long getGlobalIdForProductByClientIdAndClientSkuId(Long id, String skuId) {
         TypedQuery<Long> query = getQuery(getGlobalIdByClientSkuIdAndClientId, Long.class);
+        query.setParameter("id", id);
+        query.setParameter("skuId", skuId);
+        return query.getSingleResult();
+    }
+
+    public Long checkProductExistByClientIdAndClientSkuId(Long id, String skuId) {
+        TypedQuery<Long> query = getQuery(checkProductExistByClientSkuAndClientId, Long.class);
         query.setParameter("id", id);
         query.setParameter("skuId", skuId);
         return query.getSingleResult();

@@ -16,6 +16,8 @@ public class BinDao extends AbstractDao {
     private static String getAlBinIds = "select b.binId from Bin b";
     private static String getBinEntityDataBySkuIDAndBinID = "select bs from BinSku bs where globalSkuId=:skuId and binId=:binId ";
 
+    private static String findAllTheBinContainingProductByGlobalSku =
+            "select bs from BinSku bs  where globalSkuId=:skuId order by quantity desc";
 
     @Transactional
     public void addBinToSystem(int n) {
@@ -37,6 +39,16 @@ public class BinDao extends AbstractDao {
         return query.getResultList();
     }
 
+    public List<BinSku> getAllBinsContainingProductBySku(Long skuId) {
+        TypedQuery<BinSku> query = getQuery(findAllTheBinContainingProductByGlobalSku, BinSku.class);
+        query.setParameter("skuId", skuId);
+        List<BinSku> res = query.getResultList();
+        for (BinSku resg : res) {
+
+        }
+        return query.getResultList();
+    }
+
     @Transactional
     public List<BinSku> uploadBinDataInventory(Set<BinSku> binSkus) {
         List<BinSku> result = new ArrayList<>();
@@ -46,6 +58,7 @@ public class BinDao extends AbstractDao {
         }
         return result;
     }
+
 
     @Transactional
     public List<BinSku> updateBinDataInventory(Set<BinSku> binSkus) {

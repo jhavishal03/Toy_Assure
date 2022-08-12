@@ -1,58 +1,29 @@
 package com.increff.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
-public class BinSku {
+@Table(name = "assure_BinSku")
+@Builder
+@RequiredArgsConstructor
+@Getter
+@Setter
+public class BinSku extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long binSkuId;
+
+    @NotNull
     private Long binId;
+    @NotNull
     private Long globalSkuId;
+    @NotNull
     private Long quantity;
-
-    public BinSku() {
-
-    }
-
-    public BinSku(Long binId, Long globalSkuId, Long quantity) {
-        this.binId = binId;
-        this.globalSkuId = globalSkuId;
-        this.quantity = quantity;
-    }
-
-    public Long getBinSkuId() {
-        return binSkuId;
-    }
-
-    public void setBinSkuId(Long binSkuId) {
-        this.binSkuId = binSkuId;
-    }
-
-    public Long getBinId() {
-        return binId;
-    }
-
-    public void setBinId(Long binId) {
-        this.binId = binId;
-    }
-
-    public Long getGlobalSkuId() {
-        return globalSkuId;
-    }
-
-    public void setGlobalSkuId(Long globalSkuId) {
-        this.globalSkuId = globalSkuId;
-    }
-
-    public Long getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Long quantity) {
-        this.quantity = quantity;
-    }
 }

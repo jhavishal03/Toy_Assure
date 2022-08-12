@@ -18,13 +18,9 @@ public class ProductConverter {
     }
 
     public Product prodctDtoToProduct(Long clientId, ProductDto productDto) {
-        Product product = new Product();
-        product.setClientId(clientId);
-        product.setBrandId(productDto.getBrandId());
-        product.setClientSkuId(productDto.getClientSkuId());
-        product.setName(productDto.getName());
-        product.setMrp(productDto.getMrp());
-        product.setDescription(productDto.getDescription());
-        return product;
+        
+        return Product.builder().clientId(clientId).brandId(productDto.getBrandId()).
+                clientSkuId(productDto.getClientSkuId()).name(productDto.getName()).mrp(productDto.getMrp())
+                .description(productDto.getDescription()).build();
     }
 }
