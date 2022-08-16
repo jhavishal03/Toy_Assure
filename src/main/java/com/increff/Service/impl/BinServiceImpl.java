@@ -79,7 +79,6 @@ public class BinServiceImpl implements BinService {
             }
             //inventory update call to be made
             Inventory inventory = inventoryDao.getInvetoryIdBySkuId(bin.getGlobalSkuId());
-            // can use optional here aso
             if (inventory == null) {
                 Inventory inventoryTobeAdded = new Inventory();
                 inventoryTobeAdded.setGlobalSkuId(bin.getGlobalSkuId());

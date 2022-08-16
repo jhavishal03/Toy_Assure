@@ -2,12 +2,14 @@ package com.increff.Dto;
 
 
 import com.opencsv.bean.CsvBindByPosition;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class BinSkuDto {
     @CsvBindByPosition(position = 0)

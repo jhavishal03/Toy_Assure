@@ -62,7 +62,7 @@ public class ChannelServiceImpl implements ChannelService {
         Set<ChannelListing> channelListingsList = new HashSet<>();
         Optional<User> savedUser = userDao.getUserByNameAndType(clientName, UserType.CLIENT);
         if (!savedUser.isPresent()) {
-            throw new UserException("Client doesn't exits");
+            throw new UserException("Client doesn't exist");
         }
         Optional<Channel> savedChannel = channelDao.checkChannelExistOrNot(channelName);
         if (!savedChannel.isPresent()) {
@@ -84,15 +84,11 @@ public class ChannelServiceImpl implements ChannelService {
 
             Long globalSkuId = productDao.getGlobalIdForProductByClientIdAndClientSkuId(
                     savedUser.get().getUserId(), channel.getClientSkuId());
-            ChannelListing obj = new ChannelListing();
-            obj.setChannelId(savedChannel.get().getChannelId());
-            obj.setClientId(savedUser.get().getUserId());
-            obj.setChannelSkuId(channel.getChannelSkuId());
-            obj.setGlobalSkuId(globalSkuId);
+            ChannelListing obj = ChannelListing.builder().channelId(savedChannel.get().getChannelId())
+                    .clientId(savedUser.get().getUserId()).channelSkuId(channel.getChannelSkuId())
+                    .globalSkuId(globalSkuId).build();
             channelListingsList.add(obj);
         }
-
-
         return channelDao.saveChannelsListing(channelListingsList);
     }
 }

@@ -1,10 +1,7 @@
 package com.increff.Model;
 
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,7 +9,8 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "assure_BinSku")
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class BinSku extends BaseModel {

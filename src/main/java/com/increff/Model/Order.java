@@ -1,9 +1,10 @@
 package com.increff.Model;
 
 import com.increff.Constants.Status;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -13,7 +14,8 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "assure_Order")
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class Order extends BaseModel {
     @Id

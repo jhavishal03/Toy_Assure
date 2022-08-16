@@ -1,8 +1,7 @@
 package com.increff.Model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,9 +12,8 @@ import javax.persistence.Version;
 import java.util.Date;
 
 @MappedSuperclass
-@Builder
-@RequiredArgsConstructor
-@Data
+@Getter
+@Setter
 public abstract class BaseModel {
 
     @CreationTimestamp

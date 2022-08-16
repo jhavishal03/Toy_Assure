@@ -2,10 +2,7 @@ package com.increff.Model;
 
 import com.increff.Constants.UserType;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -15,7 +12,8 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class User extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,8 +1,9 @@
 package com.increff.Model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -12,7 +13,8 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "assure_ChannelListing")
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class ChannelListing extends BaseModel {
     @Id

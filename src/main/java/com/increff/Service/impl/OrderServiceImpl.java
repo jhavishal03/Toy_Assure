@@ -96,8 +96,6 @@ public class OrderServiceImpl implements OrderService {
         }
         Order order = orderDao.addOrder(upsertOrder(orderRequest.getCustomerId(), orderRequest.getClientId(),
                 orderRequest.getChannelOrderId(), orderRequest.getChannelName(), InvoiceType.CHANNEL));
-
-
         result = upsertOrderItemDetailsExternal(orderRequest.getClientId(), order.getOrderId(),
                 channel.get().getChannelId(), orderRequest.getOrderItems());
         return result;

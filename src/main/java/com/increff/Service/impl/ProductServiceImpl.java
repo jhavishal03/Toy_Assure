@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
         }
         List<ProductDto> products = null;
         try {
-            List<Object> product = new CsvToBeanBuilder<>(new InputStreamReader(new ByteArrayInputStream(file.getBytes()), "UTF8"))
+            products = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(file.getBytes()), "UTF8"))
                     .withType(ProductDto.class).withSkipLines(1).build().parse();
 
         } catch (Exception e) {

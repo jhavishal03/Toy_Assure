@@ -1,9 +1,10 @@
 package com.increff.Model;
 
 import com.increff.Constants.InvoiceType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -11,7 +12,8 @@ import javax.validation.constraints.NotEmpty;
 @Entity
 @Table(name = "assure_Channel")
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class Channel extends BaseModel {
     @Id
