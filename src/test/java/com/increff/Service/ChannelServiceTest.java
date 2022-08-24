@@ -3,7 +3,7 @@ package com.increff.Service;
 import com.increff.Dao.ChannelDao;
 import com.increff.Dao.ProductDao;
 import com.increff.Dao.UserDao;
-import com.increff.Exception.UserException;
+import com.increff.Exception.ApiGenericException;
 import com.increff.Model.Channel;
 import com.increff.Model.ChannelListing;
 import com.increff.Service.impl.ChannelServiceImpl;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelServiceTest {
-
+    
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     @Mock
@@ -45,7 +45,7 @@ public class ChannelServiceTest {
     private ChannelDao channelDao;
     @Mock
     private ProductDao productDao;
-
+    
     @Test
     public void addChannel_Success() {
         when(channelDao.checkChannelExistOrNot((String) notNull())).thenReturn(Optional.empty());
@@ -54,68 +54,68 @@ public class ChannelServiceTest {
         assertNotNull(channel);
         assertEquals(channel.getName(), "MockName");
     }
-
-    @Test(expected = UserException.class)
+    
+    @Test(expected = ApiGenericException.class)
     public void addChannel_Failure() {
         when(channelDao.checkChannelExistOrNot((String) notNull())).thenReturn(Optional.of(TestUtil.getChannel()));
         channelService.addChannel(TestUtil.getChannelDto());
     }
-
+    
     @Test
     public void addChannelListing_Success() throws IOException {
         when(userDao.getUserByNameAndType((String) notNull(), any())).thenReturn(Optional.of(TestUtil.getUserClient()));
         when(channelDao.checkChannelExistOrNot((String) notNull())).thenReturn(Optional.of(TestUtil.getChannel()));
         when(productDao.checkProductExistByClientIdAndClientSkuId((Long) notNull(), (String) notNull()))
-                .thenReturn(1L);
+                .thenReturn(TestUtil.getProductList().get(0));
         when(productDao.getGlobalIdForProductByClientIdAndClientSkuId((Long) notNull(), (String) notNull())).thenReturn(1L);
-
+        
         when(channelDao.saveChannelsListing(any())).thenReturn(TestUtil.getChannelListingList());
         File file = new File("src/test/resources/channelListing - Sheet1.txt");
         FileInputStream fis = new FileInputStream(file);
 //        MockMultipartFile mfile = new MockMultipartFile("data", "filename.csv", "text/plain", "some csv".getBytes());
         MockMultipartFile mfile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(fis));
         List<ChannelListing> res = channelService.addChannelListings("Client", "MockChannel", mfile);
-
+        
         assertNotNull(channelService.addChannelListings("Client", "MockChannel", mfile));
-
+        
     }
-
+    
     @Test
     public void addChannelListing_Success2() throws IOException {
         when(userDao.getUserByNameAndType((String) notNull(), any())).thenReturn(Optional.of(TestUtil.getUserClient()));
         when(channelDao.checkChannelExistOrNot((String) notNull())).thenReturn(Optional.of(TestUtil.getChannel()));
         when(productDao.checkProductExistByClientIdAndClientSkuId((Long) notNull(), (String) notNull()))
-                .thenReturn(0L);
+                .thenReturn(TestUtil.getProductList().get(1));
 //        when(productDao.getGlobalIdForProductByClientIdAndClientSkuId((Long) notNull(), (String) notNull())).thenReturn(1L);
-
+        
         when(channelDao.saveChannelsListing(any())).thenReturn(Collections.emptyList());
         File file = new File("src/test/resources/channelListing - Sheet1.txt");
         FileInputStream fis = new FileInputStream(file);
 //        MockMultipartFile mfile = new MockMultipartFile("data", "filename.csv", "text/plain", "some csv".getBytes());
         MockMultipartFile mfile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(fis));
         List<ChannelListing> res = channelService.addChannelListings("Client", "MockChannel", mfile);
-
+        
         assertNotNull(res);
-        assertEquals(res.size(), 0);
-
+        assertEquals(2, res.size());
+        
     }
-
-    @Test(expected = UserException.class)
-    public void addChannelListing_Fail1() throws IOException, UserException {
+    
+    @Test(expected = ApiGenericException.class)
+    public void addChannelListing_Fail1() throws IOException, ApiGenericException {
         when(userDao.getUserByNameAndType((String) notNull(), any())).thenReturn(Optional.empty());
         File file = new File("src/test/resources/channelListing - Sheet1.txt");
         FileInputStream fis = new FileInputStream(file);
 //        MockMultipartFile mfile = new MockMultipartFile("data", "filename.csv", "text/plain", "some csv".getBytes());
         MockMultipartFile mfile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(fis));
         List<ChannelListing> res = channelService.addChannelListings("Client", "MockChannel", mfile);
-        thrown.expect(UserException.class);
+        thrown.expect(ApiGenericException.class);
         thrown.expectMessage("Client doesn't exist");
         channelService.addChannelListings("Client", "MockChannel", mfile);
-
+        
     }
-
-
-    @Test(expected = UserException.class)
+    
+    
+    @Test(expected = ApiGenericException.class)
     public void addChannelListing_Fail2() throws IOException {
         when(userDao.getUserByNameAndType((String) notNull(), any())).thenReturn(Optional.of(TestUtil.getUserClient()));
         when(channelDao.checkChannelExistOrNot((String) notNull())).thenReturn(Optional.empty());
@@ -124,8 +124,8 @@ public class ChannelServiceTest {
 //        MockMultipartFile mfile = new MockMultipartFile("data", "filename.csv", "text/plain", "some csv".getBytes());
         MockMultipartFile mfile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(fis));
         List<ChannelListing> res = channelService.addChannelListings("Client", "MockChannel", mfile);
-
+        
         channelService.addChannelListings("Client", "MockChannel", mfile);
-
+        
     }
 }

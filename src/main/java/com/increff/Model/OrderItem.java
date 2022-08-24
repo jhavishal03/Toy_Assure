@@ -1,9 +1,7 @@
 package com.increff.Model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -13,7 +11,8 @@ import javax.validation.constraints.Min;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class OrderItem extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +22,12 @@ public class OrderItem extends BaseModel {
     @Min(0)
     private Long globalSkuId;
     private Long orderedQuantity = 0L;
-
+    
+    @ColumnDefault("0")
     private Long allocatedQuantity = 0L;
+    @ColumnDefault("0")
     private Long fulfilledQuantity = 0L;
     @Min(0)
     private Double sellingPricePerUnit;
-
+    
 }

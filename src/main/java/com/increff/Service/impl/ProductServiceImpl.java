@@ -4,7 +4,7 @@ import com.increff.Dao.ProductDao;
 import com.increff.Dao.UserDao;
 import com.increff.Dto.Converter.ProductConverter;
 import com.increff.Dto.ProductDto;
-import com.increff.Exception.UserException;
+import com.increff.Exception.ApiGenericException;
 import com.increff.Model.Product;
 import com.increff.Model.User;
 import com.increff.Service.ProductService;
@@ -25,51 +25,51 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private UserDao userDao;
-
+    
     @Autowired
     private ProductDao productDao;
-
+    
     @Autowired
     private ProductConverter productConverter;
-
+    
     @Override
     public List<Product> uploadProductDetailsForClient(Long clientId, MultipartFile file) throws IOException {
         Optional<User> user = Optional.ofNullable(userDao.findUserById(clientId));
         if (!user.isPresent()) {
-            throw new UserException("Client not present with clientId" + clientId);
+            throw new ApiGenericException("Client not present with clientId" + clientId);
         }
         if (!user.get().getType().getValue().equals("Client")) {
-            throw new UserException("Given user is not client");
+            throw new ApiGenericException("Given user is not client");
         }
         List<ProductDto> products = null;
         try {
             products = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(file.getBytes()), "UTF8"))
                     .withType(ProductDto.class).withSkipLines(1).build().parse();
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
         List<String> savedClientSkuIds = productDao.getClientSkuIdByClientId(clientId);
-
+        
         return upsertClientSkuIds(clientId, savedClientSkuIds, products);
     }
-
+    
     @Override
     public List<Product> uploadProductDetailsForClientList(Long clientId, List<ProductDto> productDtoList) {
-
+        
         Optional<User> savedUser = Optional.ofNullable(userDao.findUserById(clientId));
         if (!savedUser.isPresent()) {
-            throw new UserException("Client not present with clientId" + clientId);
+            throw new ApiGenericException("Client not present with clientId" + clientId);
         }
         if (!savedUser.get().getType().getValue().equals("Client")) {
-            throw new UserException("Given user is not client");
+            throw new ApiGenericException("Given user is not client");
         }
         List<String> savedClientSkuIds = productDao.getClientSkuIdByClientId(clientId);
         return upsertClientSkuIds(clientId, savedClientSkuIds, productDtoList);
-
+        
     }
-
+    
     private List<Product> upsertClientSkuIds(Long clientId, List<String> savedClientSkuIds, List<ProductDto> productDtoList) {
         List<Product> result = new ArrayList<>();
         List<Product> products = productConverter.productDtoToProductBulk(clientId, productDtoList);
@@ -84,17 +84,17 @@ public class ProductServiceImpl implements ProductService {
         updateGlobalIdForExistingProduct(clientId, productsToBeUpdated);
         result.addAll(productsToBeUpdated);
         return result;
-
-
+        
+        
     }
-
+    
     private void updateGlobalIdForExistingProduct(Long clientId, List<Product> productsToBeUpdated) {
         for (Product product : productsToBeUpdated) {
             Long id = productDao.getGlobalIdForProductByClientIdAndClientSkuId(clientId, product.getClientSkuId());
             product.setGlobalSkuId(id);
             productDao.updateProductsDataForClient(product);
         }
-
+        
     }
-
+    
 }

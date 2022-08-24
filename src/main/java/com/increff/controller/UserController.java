@@ -34,7 +34,8 @@ public class UserController {
     @ApiOperation(value = "Api to add Customer")
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     public ResponseEntity<User> addUser(@RequestBody @Valid UserDto user) {
-        return new ResponseEntity<>(userService.addUser(user), HttpStatus.CREATED);
+        User result = userService.addUser(user);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
 }

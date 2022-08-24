@@ -14,9 +14,8 @@ public class BinConverter {
         List<BinSku> result = new ArrayList<>();
         for (BinSkuDto bin : binSkuDtos) {
             result.add(
-                    BinSku.builder().binSkuId(bin.getBinId()).
+                    BinSku.builder().binId(bin.getBinId()).
                             globalSkuId(bin.getGlobalSkuId()).quantity(bin.getQuantity()).build());
-
         }
         return result;
     }

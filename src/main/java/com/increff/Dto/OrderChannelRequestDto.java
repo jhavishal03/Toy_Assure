@@ -1,7 +1,12 @@
 package com.increff.Dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
 import java.util.List;
 
+@Builder
+@AllArgsConstructor
 public class OrderChannelRequestDto {
     private String channelName;
     private Long clientId;
@@ -9,8 +14,6 @@ public class OrderChannelRequestDto {
     private String channelOrderId;
     private List<OrderItemCsvDto> orderItems;
 
-    public OrderChannelRequestDto() {
-    }
 
     public String getChannelName() {
         return channelName;

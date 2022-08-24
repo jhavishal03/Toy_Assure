@@ -23,26 +23,26 @@ import java.util.*;
 public class BinServiceImpl implements BinService {
     @Autowired
     private BinDao binDao;
-
+    
     @Autowired
     private BinConverter binConverter;
-
+    
     @Autowired
     private ProductDao productDao;
-
+    
     @Autowired
     private InventoryDao inventoryDao;
-
+    
     @Override
     public void addBinToSystem(int num) {
         binDao.addBinToSystem(num);
     }
-
+    
     @Override
     @Transactional
     public List<BinSku> uploadBinData(MultipartFile binDataCsv) {
         List<BinSkuDto> binData = null;
-        List<Long> avaialbleBins = binDao.getAllBinIds();
+        List<Long> availableBins = binDao.getAllBinIds();
         List<Long> availableGlobalSkus = productDao.getGlobalSkuIds();
         Set<BinSku> entitiesToBeNewlyAdded = new HashSet<>();
         Set<BinSku> entitiesToBeUpdated = new HashSet<>();
@@ -52,22 +52,22 @@ public class BinServiceImpl implements BinService {
         } catch (IOException e) {
             e.getCause();
         }
-
-
+        
+        
         List<BinSku> binSkus = binConverter.convertBinSkuDtoToBin(binData);
         List<BinSku> result = new ArrayList<>();
-
-
+        
+        
         for (BinSku bin : binSkus) {
             Long changeInProductQuantity = 0L;
-            if (!avaialbleBins.contains(bin.getBinId()) || !availableGlobalSkus.contains(bin.getGlobalSkuId())) {
+            if (!availableBins.contains(bin.getBinId()) || !availableGlobalSkus.contains(bin.getGlobalSkuId())) {
                 continue;
             }
             Optional<BinSku> getSavedBin = Optional.ofNullable(binDao.getBinEntityByBinIdAndSkuId(bin.getGlobalSkuId(),
                     bin.getBinId()));
-
+            
             if (!getSavedBin.isPresent()) {
-
+                
                 entitiesToBeNewlyAdded.add(bin);
                 changeInProductQuantity = bin.getQuantity();
             } else {
@@ -78,7 +78,7 @@ public class BinServiceImpl implements BinService {
                 savedBin.setQuantity(bin.getQuantity());
             }
             //inventory update call to be made
-            Inventory inventory = inventoryDao.getInvetoryIdBySkuId(bin.getGlobalSkuId());
+            Inventory inventory = inventoryDao.getInvetoryBySkuId(bin.getGlobalSkuId());
             if (inventory == null) {
                 Inventory inventoryTobeAdded = new Inventory();
                 inventoryTobeAdded.setGlobalSkuId(bin.getGlobalSkuId());
@@ -89,13 +89,13 @@ public class BinServiceImpl implements BinService {
                 inventoryDao.updateInventoryEntity(inventory);
             }
         }
-
+        
         result.addAll(binDao.uploadBinDataInventory(entitiesToBeNewlyAdded));
 //        result.addAll(binDao.updateBinDataInventory(entitiesToBeUpdated));
-
+        
         return result;
     }
-
+    
     //removing items from bin
     @Override
     public void removeProductsFromBinAfterAllocation(Long globalSkuId, Long quantityToBeRemoved) {

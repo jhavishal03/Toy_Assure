@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -19,7 +20,7 @@ import java.util.List;
 public class OrderController {
     @Autowired
     private OrderService orderService;
-
+    
     @ApiOperation(value = "Api to create Order using internal channel")
     @PostMapping("/customer/{customerId}/client/{clientId}/createOrder")
     public ResponseEntity<List<OrderItem>> createOrderInternalChannel(@PathVariable("customerId") Long customerId, @PathVariable("clientId") Long clientId,
@@ -27,18 +28,23 @@ public class OrderController {
         List<OrderItem> res = orderService.createOrderInternalChannel(customerId, clientId, channelOrderId, orderItems);
         return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
-
+    
     @ApiOperation(value = "Api to create order using external channel")
     @PostMapping("/order/channel/create")
     public void createOrderChannel(@RequestBody OrderChannelRequestDto orderRequest) {
         orderService.createOrderExternalChannel(orderRequest);
     }
-
+    
     @ApiOperation(value = "Api to allocate Order by passing order Id")
     @PostMapping("/order/{orderId}/allocateOrders")
     public ResponseEntity<List<OrderItem>> allocateOrder(@PathVariable("orderId") Long orderId) {
         List<OrderItem> res = orderService.allocateOrderPerId(orderId);
         return new ResponseEntity<>(res, HttpStatus.OK);
-
+        
+    }
+    
+    @GetMapping("/order/{orderId}/generateInvoice")
+    public void generateInvoice(@PathVariable("orderId") Long orderId) throws URISyntaxException {
+        orderService.generateFulfilledInvoice(orderId);
     }
 }

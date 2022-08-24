@@ -1,6 +1,6 @@
 package com.increff.controller.Exception;
 
-import com.increff.Exception.UserException;
+import com.increff.Exception.ApiGenericException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,8 +12,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 @RestController
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(UserException.class)
-    public final ResponseEntity<?> handleMemeConflict(UserException ex, WebRequest request) {
+    @ExceptionHandler(ApiGenericException.class)
+    public final ResponseEntity<?> handleUserExceptiont(ApiGenericException ex, WebRequest request) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

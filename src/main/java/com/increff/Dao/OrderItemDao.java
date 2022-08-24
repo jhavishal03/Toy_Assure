@@ -28,6 +28,7 @@ public class OrderItemDao extends AbstractDao {
     public OrderItem addSingleOrderItem(OrderItem order) {
         em.persist(order);
         return order;
+
     }
 
     public List<OrderItem> fetchOrderItemByOrderId(Long orderId) {
