@@ -1,8 +1,8 @@
 package com.increff.Controller;
 
 import com.increff.Constants.UserType;
+import com.increff.Dto.Response;
 import com.increff.Dto.UserDto;
-import com.increff.Model.User;
 import com.increff.Service.UserService;
 import com.increff.Util.TestUtil;
 import com.increff.controller.UserController;
@@ -42,7 +42,7 @@ public class UserControllerTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         
         when(userService.findUserById(anyLong())).thenReturn(TestUtil.getUserClient());
-        ResponseEntity<User> responseEntity = userController.getUserById(1L);
+        ResponseEntity<Response> responseEntity = userController.getUserById(1L);
         
         assertEquals(responseEntity.getStatusCodeValue(), 200);
     }
@@ -62,10 +62,9 @@ public class UserControllerTest {
         UserDto user = new UserDto("mockUser", UserType.CLIENT);
         when(userService.addUser(any())).thenReturn(TestUtil.getUserClient());
 //        mockMvc.perform(MockMvcRequestBuilders.post("/api/user").content())
-        ResponseEntity<User> responseEntity = userController.addUser(user);
-        assertEquals(responseEntity.getStatusCodeValue(), 201);
-        assertEquals(responseEntity.getBody().getType(), UserType.CLIENT);
-        assertEquals(responseEntity.getBody().getName(), "MockUser");
+        ResponseEntity<Response> responseEntity = userController.addUser(user);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        assertEquals("User data created", responseEntity.getBody().getMessage());
     }
     
     

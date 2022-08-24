@@ -1,5 +1,6 @@
 package com.increff.controller;
 
+import com.increff.Dto.Response;
 import com.increff.Model.BinSku;
 import com.increff.Service.BinService;
 import io.swagger.annotations.Api;
@@ -24,14 +25,16 @@ public class BinController {
     
     @PostMapping("/bins")
     @ApiOperation(value = "Api to add Num of bins to the system")
-    public void addBins(@RequestParam int numBin) {
+    public ResponseEntity<Response> addBins(@RequestParam int numBin) {
         binService.addBinToSystem(numBin);
+        return new ResponseEntity(new Response<>("Bins Added Succcessfully", ""), HttpStatus.CREATED);
     }
     
     @ApiOperation(value = "This Api is used to update quantity of product in a Bin")
     @PostMapping("/updateBin")
-    public ResponseEntity<List<BinSku>> uploadBinWiseInventory(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Response> uploadBinWiseInventory(@RequestParam("file") MultipartFile file) {
         List<BinSku> updatedData = binService.uploadBinData(file);
-        return new ResponseEntity<>(updatedData, HttpStatus.OK);
+        return new ResponseEntity<>(
+                new Response("product quantity updated in Bins", updatedData), HttpStatus.OK);
     }
 }

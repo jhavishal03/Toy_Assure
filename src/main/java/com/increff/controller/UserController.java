@@ -1,5 +1,6 @@
 package com.increff.controller;
 
+import com.increff.Dto.Response;
 import com.increff.Dto.UserDto;
 import com.increff.Model.User;
 import com.increff.Service.UserService;
@@ -16,26 +17,28 @@ import javax.validation.Valid;
 @Api
 @RequestMapping("/api")
 public class UserController {
-
+    
     private UserService userService;
-
+    
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
+    
     @GetMapping("/user/{id}")
     @ApiOperation(value = "Api to fetch customer details by Id")
-    public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
+    public ResponseEntity<Response> getUserById(@PathVariable("id") Long id) {
         User user = userService.findUserById(id);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        Response response = new Response<>("User details for Id -> " + id, user);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    
     @ApiOperation(value = "Api to add Customer")
     @RequestMapping(value = "/user", method = RequestMethod.POST)
-    public ResponseEntity<User> addUser(@RequestBody @Valid UserDto user) {
+    public ResponseEntity<Response> addUser(@RequestBody @Valid UserDto user) {
         User result = userService.addUser(user);
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        Response response = new Response<>("User data created", user);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    
 }
