@@ -6,7 +6,6 @@ import com.increff.Dao.UserDao;
 import com.increff.Dto.InvoiceData;
 import com.increff.Dto.InvoiceItemData;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.Inventory;
 import com.increff.Model.Order;
 import com.increff.Model.OrderItem;
 import com.increff.Model.Product;
@@ -56,8 +55,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     
     private String getXmlString(List<OrderItem> orderItems, Order order) {
         String clientName = userDao.findUserById(order.getClientId()).getName();
-        fileName.append(clientName);
-        fileName.append("_orderId_" + order.getOrderId());
+        fileName.append(clientName).append("_orderId_").append(order.getOrderId()).append(".pdf");
         InvoiceData invoiceData = InvoiceData.builder().
                 invoiceItemData(this.convertOrderitemToInvoiceOrderItem(orderItems))
                 .invoiceNumber(order.getOrderId()).invoiceDate(new Timestamp(System.currentTimeMillis()).toString())
@@ -89,7 +87,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     .quantity(orderItem.getAllocatedQuantity()).build();
             
             invoiceItemDataList.add(invoiceItemData);
-            Inventory inventory = inventoryService.updateInventoryAfterFulfillment(orderItem.getGlobalSkuId(), orderItem.getAllocatedQuantity());
+            inventoryService.updateInventoryAfterFulfillment(orderItem.getGlobalSkuId(), orderItem.getAllocatedQuantity());
             orderItem.setFulfilledQuantity(orderItem.getAllocatedQuantity());
             orderItem.setAllocatedQuantity(0L);
             orderItemDao.addSingleOrderItem(orderItem);
@@ -101,7 +99,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private void createInvoicePdf(String xml, File xslt) throws IOException, FOPException, TransformerException {
         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-        fileName.append(".pdf");
+        
         OutputStream outputStream = Files.newOutputStream(Paths.get(fileName.toString()));
         Fop fop = null;
         fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, outputStream);

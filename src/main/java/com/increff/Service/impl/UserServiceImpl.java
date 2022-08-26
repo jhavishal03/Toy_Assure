@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
         if (savedUser.isPresent()) {
             throw new ApiGenericException("User Already Present with name " + userDto.getName());
         }
+        
         User user = User.builder().name(userDto.getName()).type(userDto.getType()).build();
         return userDao.addUser(user);
     }

@@ -7,6 +7,7 @@ import com.increff.Dao.*;
 import com.increff.Dto.OrderChannelRequestDto;
 import com.increff.Dto.OrderItemCsvDto;
 import com.increff.Exception.ApiGenericException;
+import com.increff.Exception.CSVFileParsingException;
 import com.increff.Model.*;
 import com.increff.Service.BinService;
 import com.increff.Service.OrderService;
@@ -17,12 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -128,15 +130,19 @@ public class OrderServiceImpl implements OrderService {
         try {
             orders = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(orderItems.getBytes())))
                     .withType(OrderItemCsvDto.class).withSkipLines(1).build().parse();
-        } catch (IOException e) {
-            e.getCause();
+        } catch (Exception e) {
+            throw new CSVFileParsingException(e.getCause() + e.getMessage());
+        }
+        Set<String> skuIds = orders.stream().map(ord -> ord.getClientSkuId()).collect(Collectors.toSet());
+        if (Integer.compare(orders.size(), skuIds.size()) != 0) {
+            throw new ApiGenericException("Duplicate Sku present in CSV file");
         }
         
         //for each product
         for (OrderItemCsvDto order : orders) {
-            Long globalSkuId = productDao.getGlobalIdForProductByClientIdAndClientSkuId(clientId, order.getClientSkuId());
-            if (globalSkuId != null) {
-                orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(globalSkuId).
+            Product savedProduct = productDao.getProductForProductByClientIdAndClientSkuId(clientId, order.getClientSkuId());
+            if (savedProduct != null) {
+                orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(savedProduct.getGlobalSkuId()).
                         orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(order.getSellingPricePerUnit())
                         .allocatedQuantity(0l).fulfilledQuantity(0l).build());
             }
@@ -209,7 +215,6 @@ public class OrderServiceImpl implements OrderService {
             throw new ApiGenericException("Invoice already generated");
         } else if (order.getStatus().getValue().equals(Status.CREATED.getValue())) {
             throw new ApiGenericException("Order is not allocated Yet, So can't generate order Invoice");
-            
         }
         List<OrderItem> orderItemList = orderItemDao.fetchOrderItemByOrderId(orderId);
         invoiceService.generateInvoice(orderItemList, order);

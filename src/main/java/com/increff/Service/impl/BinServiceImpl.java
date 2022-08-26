@@ -5,6 +5,8 @@ import com.increff.Dao.InventoryDao;
 import com.increff.Dao.ProductDao;
 import com.increff.Dto.BinSkuDto;
 import com.increff.Dto.Converter.BinConverter;
+import com.increff.Exception.ApiGenericException;
+import com.increff.Exception.CSVFileParsingException;
 import com.increff.Model.BinSku;
 import com.increff.Model.Inventory;
 import com.increff.Service.BinService;
@@ -15,9 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BinServiceImpl implements BinService {
@@ -49,8 +51,12 @@ public class BinServiceImpl implements BinService {
         try {
             binData = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(binDataCsv.getBytes())))
                     .withType(BinSkuDto.class).withSkipLines(1).build().parse();
-        } catch (IOException e) {
-            e.getCause();
+        } catch (Exception e) {
+            throw new CSVFileParsingException(e.getCause() + e.getMessage());
+        }
+        Set<Long> skuIds = binData.stream().map(binSku -> binSku.getGlobalSkuId()).collect(Collectors.toSet());
+        if (Integer.compare(binData.size(), skuIds.size()) != 0) {
+            throw new ApiGenericException("Duplicate Sku present in CSV file");
         }
         
         

@@ -5,6 +5,7 @@ import com.increff.Dao.UserDao;
 import com.increff.Dto.Converter.ProductConverter;
 import com.increff.Dto.ProductDto;
 import com.increff.Exception.ApiGenericException;
+import com.increff.Exception.CSVFileParsingException;
 import com.increff.Model.Product;
 import com.increff.Model.User;
 import com.increff.Service.ProductService;
@@ -13,12 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +32,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductConverter productConverter;
     
     @Override
-    public List<Product> uploadProductDetailsForClient(Long clientId, MultipartFile file) throws IOException {
+    @Transactional
+    public List<Product> uploadProductDetailsForClient(Long clientId, MultipartFile file) {
         Optional<User> user = Optional.ofNullable(userDao.findUserById(clientId));
         if (!user.isPresent()) {
             throw new ApiGenericException("Client not present with clientId" + clientId);
@@ -44,11 +44,18 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDto> products = null;
         try {
             products = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(file.getBytes()), "UTF8"))
-                    .withType(ProductDto.class).withSkipLines(1).build().parse();
-            
+                    .withType(ProductDto.class).withIgnoreEmptyLine(true).withSkipLines(1).build().parse();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new CSVFileParsingException(e.getCause() + e.getMessage());
         }
+        Set<String> skuIds = new HashSet<>();
+        Set<String> duplicateIds = products.stream().map(product -> product.getClientSkuId()).
+                filter(ele -> !skuIds.add(ele)).collect(Collectors.toSet());
+        if (duplicateIds.size() != 0) {
+            throw new ApiGenericException("Duplicate Sku present in CSV file with sku-> " + duplicateIds);
+            
+        }
+        
         
         List<String> savedClientSkuIds = productDao.getClientSkuIdByClientId(clientId);
         
@@ -76,25 +83,31 @@ public class ProductServiceImpl implements ProductService {
         List<Product> productsToBeAdded = new ArrayList<>();
         List<Product> productsToBeUpdated = new ArrayList<>();
         //these products need to be added
-        productsToBeAdded = products.stream().filter(prd -> !savedClientSkuIds.contains(prd.getClientSkuId())).collect(Collectors.toList());
+        productsToBeAdded = products.stream().filter(prd -> !savedClientSkuIds.contains(prd.getClientSkuId()))
+                .collect(Collectors.toList());
         result.addAll(productDao.addProductsData(productsToBeAdded));
         //these products need to be updated
-        productsToBeUpdated = products.stream().filter(prd -> savedClientSkuIds.contains(prd.getClientSkuId())).collect(Collectors.toList());
+        productsToBeUpdated = products.stream().filter(prd -> savedClientSkuIds.contains(prd.getClientSkuId())
+        ).collect(Collectors.toList());
 //        productDao.updateProductsDataForClient(clientId, productsToBeUpdated);
-        updateGlobalIdForExistingProduct(clientId, productsToBeUpdated);
-        result.addAll(productsToBeUpdated);
+        result.addAll(updateGlobalIdForExistingProduct(clientId, productsToBeUpdated));
         return result;
         
         
     }
     
-    private void updateGlobalIdForExistingProduct(Long clientId, List<Product> productsToBeUpdated) {
+    private List<Product> updateGlobalIdForExistingProduct(Long clientId, List<Product> productsToBeUpdated) {
+        List<Product> res = new ArrayList<>();
         for (Product product : productsToBeUpdated) {
-            Long id = productDao.getGlobalIdForProductByClientIdAndClientSkuId(clientId, product.getClientSkuId());
-            product.setGlobalSkuId(id);
-            productDao.updateProductsDataForClient(product);
+            Product savedProduct = productDao.getProductForProductByClientIdAndClientSkuId(clientId, product.getClientSkuId());
+            savedProduct.setMrp(product.getMrp());
+            savedProduct.setDescription(product.getDescription());
+            savedProduct.setBrandId(product.getBrandId());
+            savedProduct.setName(product.getName());
+//            productDao.updateProductsDataForClient(product);
+            res.add(savedProduct);
         }
-        
+        return res;
     }
     
 }

@@ -7,6 +7,7 @@ import com.increff.Dao.UserDao;
 import com.increff.Dto.ChannelDto;
 import com.increff.Dto.ChannelListingCsv;
 import com.increff.Exception.ApiGenericException;
+import com.increff.Exception.CSVFileParsingException;
 import com.increff.Model.Channel;
 import com.increff.Model.ChannelListing;
 import com.increff.Model.Product;
@@ -19,9 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -63,7 +63,7 @@ public class ChannelServiceImpl implements ChannelService {
     public List<ChannelListing> addChannelListings(String clientName, String channelName, MultipartFile channelListings) {
         
         List<ChannelListingCsv> channelList = null;
-        Set<ChannelListing> channelListingsList = new HashSet<>();
+        List<ChannelListing> channelListingsList = new ArrayList<>();
         Optional<User> savedUser = userDao.getUserByNameAndType(clientName, UserType.CLIENT);
         if (!savedUser.isPresent()) {
             throw new ApiGenericException("Client doesn't exist");
@@ -75,9 +75,14 @@ public class ChannelServiceImpl implements ChannelService {
         try {
             channelList = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(channelListings.getBytes())))
                     .withType(ChannelListingCsv.class).withSkipLines(1).build().parse();
-        } catch (IOException e) {
-            e.getCause();
+        } catch (Exception e) {
+            throw new CSVFileParsingException(e.getCause() + e.getMessage());
         }
+        Set<String> skuIds = channelList.stream().map(channl -> channl.getClientSkuId()).collect(Collectors.toSet());
+        if (Integer.compare(channelList.size(), skuIds.size()) != 0) {
+            throw new ApiGenericException("Duplicate Sku present in CSV file");
+        }
+        
         Long clientId = savedUser.get().getUserId();
         Long channelId = savedChannel.get().getChannelId();
         for (ChannelListingCsv channel : channelList) {
@@ -91,17 +96,18 @@ public class ChannelServiceImpl implements ChannelService {
             ChannelListing savedChannelListing =
                     channelDao.findChannelListingBySkuIDByChannelIdAndSkuId(clientId, channelId, product.getGlobalSkuId());
             if (savedChannelListing == null) {
-                Long globalSkuId = productDao.getGlobalIdForProductByClientIdAndClientSkuId(
+                Product savedProduct = productDao.getProductForProductByClientIdAndClientSkuId(
                         savedUser.get().getUserId(), channel.getClientSkuId());
                 ChannelListing obj = ChannelListing.builder().channelId(savedChannel.get().getChannelId())
                         .clientId(savedUser.get().getUserId()).channelSkuId(channel.getChannelSkuId())
-                        .globalSkuId(globalSkuId).build();
+                        .globalSkuId(savedProduct.getGlobalSkuId()).build();
+                channelDao.addSingleChannelListing(obj);
                 channelListingsList.add(obj);
             } else {
                 savedChannelListing.setChannelSkuId(channel.getChannelSkuId());
                 channelListingsList.add(savedChannelListing);
             }
         }
-        return channelListingsList.stream().collect(Collectors.toList());
+        return channelListingsList;
     }
 }
