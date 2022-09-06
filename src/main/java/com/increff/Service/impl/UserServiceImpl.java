@@ -1,9 +1,8 @@
 package com.increff.Service.impl;
 
 import com.increff.Dao.UserDao;
-import com.increff.Dto.UserDto;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.User;
+import com.increff.Pojo.User;
 import com.increff.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,14 +15,14 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     
     @Override
-    public User addUser(UserDto userDto) {
-        Optional<User> savedUser = userDao.getUserByNameAndType(userDto.getName(), userDto.getType());
-        if (savedUser.isPresent()) {
-            throw new ApiGenericException("User Already Present with name " + userDto.getName());
+    public User addUser(User user) {
+        Optional<User> savedUser = userDao.getUserByNameAndType(user.getName(), user.getType());
+        if (savedUser.isPresent() || savedUser.get().getName().equalsIgnoreCase(user.getName())) {
+            throw new ApiGenericException("User Already Present with name " + user.getName());
         }
         
-        User user = User.builder().name(userDto.getName()).type(userDto.getType()).build();
-        return userDao.addUser(user);
+        User usr = User.builder().name(user.getName()).type(user.getType()).build();
+        return userDao.addUser(usr);
     }
     
     @Override

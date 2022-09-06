@@ -1,3 +1,0 @@
-clientSkuId,orderedQuantity,sellingPricePerUnit
-sku01,5,6500.89
-sku02,7,500.09

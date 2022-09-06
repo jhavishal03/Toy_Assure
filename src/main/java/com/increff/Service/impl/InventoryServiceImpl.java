@@ -1,7 +1,7 @@
 package com.increff.Service.impl;
 
 import com.increff.Dao.InventoryDao;
-import com.increff.Model.Inventory;
+import com.increff.Pojo.Inventory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

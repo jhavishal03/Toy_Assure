@@ -1,14 +1,12 @@
 package com.increff.Service;
 
-import com.increff.Dto.ProductDto;
-import com.increff.Model.Product;
-import org.springframework.web.multipart.MultipartFile;
+import com.increff.Model.ProductForm;
+import com.increff.Pojo.Product;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface ProductService {
-    public List<Product> uploadProductDetailsForClient(Long clientId, MultipartFile file) throws IOException;
-
-    public List<Product> uploadProductDetailsForClientList(Long clientId, List<ProductDto> productDtoList);
+    public List<Product> uploadProductDetailsForClient(Long clientId, List<Product> products);
+    
+    public List<Product> uploadProductDetailsForClientList(Long clientId, List<ProductForm> productDtoList);
 }

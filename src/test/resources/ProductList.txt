@@ -1,2 +1,0 @@
-clientSkuId,name,brandId,mrp,description
-sku01,Moq01,brd01,829.90,good

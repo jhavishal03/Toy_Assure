@@ -1,4 +1,0 @@
-binId,globalSkuId,quantity
-1,101,5
-3,102,6
-2,101,2

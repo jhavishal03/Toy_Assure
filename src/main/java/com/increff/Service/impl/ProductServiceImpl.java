@@ -2,22 +2,19 @@ package com.increff.Service.impl;
 
 import com.increff.Dao.ProductDao;
 import com.increff.Dao.UserDao;
-import com.increff.Dto.Converter.ProductConverter;
-import com.increff.Dto.ProductDto;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Exception.CSVFileParsingException;
-import com.increff.Model.Product;
-import com.increff.Model.User;
+import com.increff.Model.Converter.ProductConverter;
+import com.increff.Model.ProductForm;
+import com.increff.Pojo.Product;
+import com.increff.Pojo.User;
 import com.increff.Service.ProductService;
-import com.opencsv.bean.CsvToBeanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,8 +29,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductConverter productConverter;
     
     @Override
-    @Transactional
-    public List<Product> uploadProductDetailsForClient(Long clientId, MultipartFile file) {
+    @Transactional(rollbackOn = ApiGenericException.class)
+    public List<Product> uploadProductDetailsForClient(Long clientId, List<Product> products) {
         Optional<User> user = Optional.ofNullable(userDao.findUserById(clientId));
         if (!user.isPresent()) {
             throw new ApiGenericException("Client not present with clientId" + clientId);
@@ -41,21 +38,6 @@ public class ProductServiceImpl implements ProductService {
         if (!user.get().getType().getValue().equals("Client")) {
             throw new ApiGenericException("Given user is not client");
         }
-        List<ProductDto> products = null;
-        try {
-            products = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(file.getBytes()), "UTF8"))
-                    .withType(ProductDto.class).withIgnoreEmptyLine(true).withSkipLines(1).build().parse();
-        } catch (Exception e) {
-            throw new CSVFileParsingException(e.getCause() + e.getMessage());
-        }
-        Set<String> skuIds = new HashSet<>();
-        Set<String> duplicateIds = products.stream().map(product -> product.getClientSkuId()).
-                filter(ele -> !skuIds.add(ele)).collect(Collectors.toSet());
-        if (duplicateIds.size() != 0) {
-            throw new ApiGenericException("Duplicate Sku present in CSV file with sku-> " + duplicateIds);
-            
-        }
-        
         
         List<String> savedClientSkuIds = productDao.getClientSkuIdByClientId(clientId);
         
@@ -63,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
     }
     
     @Override
-    public List<Product> uploadProductDetailsForClientList(Long clientId, List<ProductDto> productDtoList) {
+    public List<Product> uploadProductDetailsForClientList(Long clientId, List<ProductForm> productDtoList) {
         
         Optional<User> savedUser = Optional.ofNullable(userDao.findUserById(clientId));
         if (!savedUser.isPresent()) {
@@ -73,13 +55,13 @@ public class ProductServiceImpl implements ProductService {
             throw new ApiGenericException("Given user is not client");
         }
         List<String> savedClientSkuIds = productDao.getClientSkuIdByClientId(clientId);
-        return upsertClientSkuIds(clientId, savedClientSkuIds, productDtoList);
+        List<Product> products = productConverter.productDtoToProductBulk(clientId, productDtoList);
+        return upsertClientSkuIds(clientId, savedClientSkuIds, products);
         
     }
     
-    private List<Product> upsertClientSkuIds(Long clientId, List<String> savedClientSkuIds, List<ProductDto> productDtoList) {
+    private List<Product> upsertClientSkuIds(Long clientId, List<String> savedClientSkuIds, List<Product> products) {
         List<Product> result = new ArrayList<>();
-        List<Product> products = productConverter.productDtoToProductBulk(clientId, productDtoList);
         List<Product> productsToBeAdded = new ArrayList<>();
         List<Product> productsToBeUpdated = new ArrayList<>();
         //these products need to be added
@@ -92,8 +74,6 @@ public class ProductServiceImpl implements ProductService {
 //        productDao.updateProductsDataForClient(clientId, productsToBeUpdated);
         result.addAll(updateGlobalIdForExistingProduct(clientId, productsToBeUpdated));
         return result;
-        
-        
     }
     
     private List<Product> updateGlobalIdForExistingProduct(Long clientId, List<Product> productsToBeUpdated) {
@@ -104,7 +84,6 @@ public class ProductServiceImpl implements ProductService {
             savedProduct.setDescription(product.getDescription());
             savedProduct.setBrandId(product.getBrandId());
             savedProduct.setName(product.getName());
-//            productDao.updateProductsDataForClient(product);
             res.add(savedProduct);
         }
         return res;

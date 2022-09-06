@@ -1,12 +1,11 @@
 package com.increff.Service;
 
-import com.increff.Dto.UserDto;
-import com.increff.Model.User;
+import com.increff.Pojo.User;
 
 public interface UserService {
-
-    public User addUser(UserDto user);
-
+    
+    public User addUser(User user);
+    
     public User findUserById(Long id);
-
+    
 }

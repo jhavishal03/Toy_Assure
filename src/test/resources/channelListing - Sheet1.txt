@@ -1,3 +1,0 @@
-channelSkuId,clientId
-sku01,01
-sku02,02

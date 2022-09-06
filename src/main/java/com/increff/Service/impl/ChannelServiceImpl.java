@@ -4,28 +4,20 @@ import com.increff.Constants.UserType;
 import com.increff.Dao.ChannelDao;
 import com.increff.Dao.ProductDao;
 import com.increff.Dao.UserDao;
-import com.increff.Dto.ChannelDto;
-import com.increff.Dto.ChannelListingCsv;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Exception.CSVFileParsingException;
-import com.increff.Model.Channel;
-import com.increff.Model.ChannelListing;
-import com.increff.Model.Product;
-import com.increff.Model.User;
+import com.increff.Model.ChannelListingCsv;
+import com.increff.Pojo.Channel;
+import com.increff.Pojo.ChannelListing;
+import com.increff.Pojo.Product;
+import com.increff.Pojo.User;
 import com.increff.Service.ChannelService;
-import com.opencsv.bean.CsvToBeanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ChannelServiceImpl implements ChannelService {
@@ -47,22 +39,18 @@ public class ChannelServiceImpl implements ChannelService {
     
     
     @Override
-    public Channel addChannel(ChannelDto channelDto) {
-        Optional<Channel> isExistChannel = channelDao.checkChannelExistOrNot(channelDto.getName());
-        if (isExistChannel.isPresent()) {
-            throw new ApiGenericException("Channel Already Exist with channelName -> " + channelDto.getName());
+    public Channel addChannel(Channel channel) {
+        Optional<Channel> isExistChannel = channelDao.checkChannelExistOrNot(channel.getName());
+        if (isExistChannel.isPresent() || isExistChannel.get().getName().equalsIgnoreCase(channel.getName())) {
+            throw new ApiGenericException("Channel Already Exist with channelName -> " + channel.getName());
         }
-        Channel channel = Channel.builder().name(channelDto.getName()).
-                invoiceType(channelDto.getInvoiceType()).build();
-        
         return channelDao.saveChannel(channel);
     }
     
     @Override
-    @Transactional
-    public List<ChannelListing> addChannelListings(String clientName, String channelName, MultipartFile channelListings) {
+    @Transactional(rollbackOn = ApiGenericException.class)
+    public List<ChannelListing> addChannelListings(String clientName, String channelName, List<ChannelListingCsv> channels) {
         
-        List<ChannelListingCsv> channelList = null;
         List<ChannelListing> channelListingsList = new ArrayList<>();
         Optional<User> savedUser = userDao.getUserByNameAndType(clientName, UserType.CLIENT);
         if (!savedUser.isPresent()) {
@@ -72,21 +60,9 @@ public class ChannelServiceImpl implements ChannelService {
         if (!savedChannel.isPresent()) {
             throw new ApiGenericException("Channel doesnot exist");
         }
-        try {
-            channelList = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(channelListings.getBytes())))
-                    .withType(ChannelListingCsv.class).withSkipLines(1).build().parse();
-        } catch (Exception e) {
-            throw new CSVFileParsingException(e.getCause() + e.getMessage());
-        }
-        Set<String> skuIds = channelList.stream().map(channl -> channl.getClientSkuId()).collect(Collectors.toSet());
-        if (Integer.compare(channelList.size(), skuIds.size()) != 0) {
-            throw new ApiGenericException("Duplicate Sku present in CSV file");
-        }
-        
         Long clientId = savedUser.get().getUserId();
         Long channelId = savedChannel.get().getChannelId();
-        for (ChannelListingCsv channel : channelList) {
-            
+        for (ChannelListingCsv channel : channels) {
             Product product = productDao.checkProductExistByClientIdAndClientSkuId(clientId,
                     channel.getClientSkuId());
             if (product == null) {

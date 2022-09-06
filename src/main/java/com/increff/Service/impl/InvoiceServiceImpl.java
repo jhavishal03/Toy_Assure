@@ -3,12 +3,12 @@ package com.increff.Service.impl;
 import com.increff.Dao.OrderItemDao;
 import com.increff.Dao.ProductDao;
 import com.increff.Dao.UserDao;
-import com.increff.Dto.InvoiceData;
-import com.increff.Dto.InvoiceItemData;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.Order;
-import com.increff.Model.OrderItem;
-import com.increff.Model.Product;
+import com.increff.Model.InvoiceData;
+import com.increff.Model.InvoiceItemData;
+import com.increff.Pojo.Order;
+import com.increff.Pojo.OrderItem;
+import com.increff.Pojo.Product;
 import com.increff.Service.InvoiceService;
 import org.apache.fop.apps.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +55,16 @@ public class InvoiceServiceImpl implements InvoiceService {
     
     private String getXmlString(List<OrderItem> orderItems, Order order) {
         String clientName = userDao.findUserById(order.getClientId()).getName();
+        String customerName = userDao.findUserById(order.getCustomerId()).getName();
         fileName.append(clientName).append("_orderId_").append(order.getOrderId()).append(".pdf");
         InvoiceData invoiceData = InvoiceData.builder().
-                invoiceItemData(this.convertOrderitemToInvoiceOrderItem(orderItems))
+                invoiceItemData(this.convertOrderItemToInvoiceOrderItem(orderItems)).customerName(customerName)
                 .invoiceNumber(order.getOrderId()).invoiceDate(new Timestamp(System.currentTimeMillis()).toString())
-                .clientName(clientName).invoiceTotal(orderItems.stream()
-                        .mapToDouble(orderItem ->
-                                orderItem.getAllocatedQuantity() * orderItem.getSellingPricePerUnit()).sum()).build();
+                .channelOrderId(order.getChannelOrderId()).clientName(clientName).
+                invoiceTotal(orderItems.parallelStream().reduce(0.0, (result, orderItem) ->
+                        orderItem.getSellingPricePerUnit() * orderItem.getOrderedQuantity(), Double::sum
+                )).build();
+        
         StringWriter stringWriter = new StringWriter();
         //Convert to XML String
         
@@ -76,7 +79,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         return stringWriter.toString();
     }
     
-    private List<InvoiceItemData> convertOrderitemToInvoiceOrderItem(List<OrderItem> orderItems) {
+    private List<InvoiceItemData> convertOrderItemToInvoiceOrderItem(List<OrderItem> orderItems) {
         List<InvoiceItemData> invoiceItemDataList = new ArrayList<InvoiceItemData>();
         for (OrderItem orderItem : orderItems) {
             Product product = productDao.findProductByGlobalSkuId(orderItem.getGlobalSkuId());

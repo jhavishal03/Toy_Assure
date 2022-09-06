@@ -15,17 +15,14 @@ import java.util.Date;
 @Getter
 @Setter
 public abstract class BaseModel {
-
+    
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateCreated;
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateUpdated;
-
     @Version
     private Long version;
-
-
 }
 
