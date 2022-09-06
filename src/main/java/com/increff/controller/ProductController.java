@@ -1,8 +1,9 @@
 package com.increff.controller;
 
 import com.increff.Dto.ProductDto;
-import com.increff.Dto.Response;
-import com.increff.Model.Product;
+import com.increff.Model.ProductForm;
+import com.increff.Model.Response;
+import com.increff.Pojo.Product;
 import com.increff.Service.ProductService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,23 +24,26 @@ public class ProductController {
     private ProductService productService;
     
     @Autowired
+    private ProductDto productDto;
+    
+    @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
     
     @ApiOperation(value = "Api to upload product details by CSV file")
-    @PostMapping("/products/{clientId}/upload")
+    @PostMapping("/products/{clientId}/uploadProductDetails")
     public ResponseEntity<Response> uploadProductDetails(@PathVariable("clientId") Long clientId,
                                                          @RequestBody MultipartFile file) throws Exception {
-        List<Product> products = productService.uploadProductDetailsForClient(clientId, file);
+        List<Product> products = productDto.uploadProductDetails(clientId, file);
         Response response = new Response<>("Product data uploaded successfully", products);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
-    @PostMapping("/products/{clientId}/uploadjson")
+    @PostMapping("/products/{clientId}/uploadProductDetailsJson")
     @ApiOperation(value = "Api to upload Product details")
     public ResponseEntity<Response> uploadProduct(@PathVariable("clientId") Long clientId,
-                                                  @RequestBody @Valid List<ProductDto> productDtoList) throws Exception {
+                                                  @RequestBody @Valid List<ProductForm> productDtoList) throws Exception {
         List<Product> result = productService.uploadProductDetailsForClientList(clientId, productDtoList);
         return new ResponseEntity<>(new Response("product data uploaded", result), HttpStatus.OK);
     }

@@ -1,10 +1,9 @@
-package com.increff.Model;
+package com.increff.Pojo;
 
 
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "assure_BinSku")
@@ -17,11 +16,11 @@ public class BinSku extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long binSkuId;
-
-    @NotNull
+    
+    @Column(nullable = false)
     private Long binId;
-    @NotNull
+    @Column(nullable = false)
     private Long globalSkuId;
-    @NotNull
+    @Column(nullable = false)
     private Long quantity;
 }

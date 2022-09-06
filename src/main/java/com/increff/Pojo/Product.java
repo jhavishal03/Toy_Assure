@@ -1,10 +1,8 @@
-package com.increff.Model;
+package com.increff.Pojo;
 
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "assure_Product")
@@ -17,14 +15,15 @@ public class Product extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long globalSkuId;
+    @Column(nullable = false)
     private String clientSkuId;
+    @Column(nullable = false)
     private Long clientId;
-    @NotEmpty
+    @Column(nullable = false)
     private String name;
-    @NotEmpty
+    @Column(nullable = false)
     private String brandId;
-    @Min(0)
+    @Column(nullable = false)
     private double mrp;
-    @NotEmpty
     private String description;
 }

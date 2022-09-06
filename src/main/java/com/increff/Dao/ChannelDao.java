@@ -1,8 +1,8 @@
 package com.increff.Dao;
 
 import com.increff.Constants.InvoiceType;
-import com.increff.Model.Channel;
-import com.increff.Model.ChannelListing;
+import com.increff.Pojo.Channel;
+import com.increff.Pojo.ChannelListing;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -10,7 +10,6 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public class ChannelDao extends AbstractDao {
@@ -61,13 +60,17 @@ public class ChannelDao extends AbstractDao {
     }
     
     @Transactional
-    public List<ChannelListing> saveChannelsListing(Set<ChannelListing> channelListings) {
+    public List<ChannelListing> saveChannelsListing(List<ChannelListing> channelListings) {
         List<ChannelListing> result = new ArrayList<>();
         for (ChannelListing ch : channelListings) {
             em.persist(ch);
             result.add(ch);
         }
         return result;
-        
+    }
+    
+    public ChannelListing addSingleChannelListing(ChannelListing obj) {
+        em.persist(obj);
+        return obj;
     }
 }

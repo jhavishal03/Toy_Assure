@@ -1,7 +1,8 @@
-package com.increff.Dto;
+package com.increff.Model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class OrderChannelRequestDto {
     @NotEmpty
     private String channelName;

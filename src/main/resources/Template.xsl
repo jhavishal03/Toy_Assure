@@ -50,6 +50,24 @@
                                     </fo:block>
                                 </fo:table-cell>
                             </fo:table-row>
+
+                            <fo:table-row>
+                                <fo:table-cell text-align="center">
+                                    <fo:block>Channel Order Id:
+                                        <xsl:value-of select="channel-orderId"/>
+                                    </fo:block>
+                                </fo:table-cell>
+                                <fo:table-cell text-align="center">
+                                    <fo:block>
+                                    </fo:block>
+                                </fo:table-cell>
+                                <fo:table-cell text-align="center">
+                                    <fo:block>Customer Name:
+                                        <xsl:value-of select="customer-name"/>
+                                    </fo:block>
+                                </fo:table-cell>
+
+                            </fo:table-row>
                         </fo:table-body>
                     </fo:table>
 

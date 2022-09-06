@@ -1,4 +1,4 @@
-package com.increff.Model;
+package com.increff.Pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,9 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "assure_ChannelListing")
@@ -20,13 +17,13 @@ public class ChannelListing extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long channelListingId;
-    @NotNull
+    @Column(nullable = false)
     private Long channelId;
-    @NotEmpty
+    @Column(nullable = false)
     private String channelSkuId;
-    @NotNull
+    @Column(nullable = false)
     private Long clientId;
-    @Min(0)
+    @Column(nullable = false)
     private Long globalSkuId;
-
+    
 }

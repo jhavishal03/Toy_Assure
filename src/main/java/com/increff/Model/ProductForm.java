@@ -6,7 +6,7 @@ import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 @MappedSuperclass
-public class ProductDto implements Serializable {
+public class ProductForm implements Serializable {
     @CsvBindByPosition(position = 0, required = true)
     private String clientSkuId;
     @CsvBindByPosition(position = 1, required = true)
@@ -18,10 +18,10 @@ public class ProductDto implements Serializable {
     @CsvBindByPosition(position = 4, required = true)
     private String description;
     
-    public ProductDto() {
+    public ProductForm() {
     }
     
-    public ProductDto(String clientSkuId, String name, String brandId, double mrp, String description) {
+    public ProductForm(String clientSkuId, String name, String brandId, double mrp, String description) {
         this.clientSkuId = clientSkuId;
         this.name = name;
         this.brandId = brandId;

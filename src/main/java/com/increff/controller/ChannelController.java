@@ -1,10 +1,10 @@
 package com.increff.controller;
 
 import com.increff.Dto.ChannelDto;
-import com.increff.Dto.Response;
-import com.increff.Model.Channel;
-import com.increff.Model.ChannelListing;
-import com.increff.Service.ChannelService;
+import com.increff.Model.ChannelForm;
+import com.increff.Model.Response;
+import com.increff.Pojo.Channel;
+import com.increff.Pojo.ChannelListing;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,27 +22,27 @@ import java.util.List;
 @RequestMapping("/api")
 public class ChannelController {
     
-    private ChannelService channelService;
+    private ChannelDto channelDto;
     
     @Autowired
-    public ChannelController(ChannelService channelService) {
-        this.channelService = channelService;
+    public ChannelController(ChannelDto channelDto) {
+        this.channelDto = channelDto;
     }
     
     @ApiOperation(value = "Api to Create Channel ")
-    @PostMapping("/channel")
-    public ResponseEntity<Response> createChannel(@RequestBody @Valid ChannelDto channelDto) {
-        Channel channel = channelService.addChannel(channelDto);
+    @PostMapping("/createChannel")
+    public ResponseEntity<Response> createChannel(@RequestBody @Valid ChannelForm channelForm) {
+        Channel channel = channelDto.addChannel(channelForm);
         Response response = new Response("Channel created succesfully", channel);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
     
     @ApiOperation(value = "Api to enter channel Listing details by csv File")
-    @PostMapping("/channelListing")
+    @PostMapping("/addChannelListings")
     public ResponseEntity<Response> createChannelListing(@RequestParam String channelName, @RequestParam String clientName,
                                                          @RequestBody MultipartFile channelListings) {
         List<ChannelListing> res = new ArrayList<>();
-        channelService.addChannelListings(clientName, channelName, channelListings);
+        res = channelDto.addChannelListingsDto(clientName, channelName, channelListings);
         Response response = new Response("Channel Listings updated successFully", res);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

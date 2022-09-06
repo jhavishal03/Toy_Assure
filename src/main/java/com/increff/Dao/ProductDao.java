@@ -1,6 +1,6 @@
 package com.increff.Dao;
 
-import com.increff.Model.Product;
+import com.increff.Pojo.Product;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -13,7 +13,7 @@ public class ProductDao extends AbstractDao {
     
     private static String selectSkuByClientId = "select p.clientSkuId from Product p where clientId=:id";
     private static String getGlobalIdByClientSkuIdAndClientId =
-            "Select p.globalSkuId from Product p where clientId=:id and clientSkuId=:skuId";
+            "Select p from Product p where clientId=:id and clientSkuId=:skuId";
     
     private static String checkProductExistByClientSkuAndClientId = "select p from Product p where clientId=:id and clientSkuId=:skuId";
     private static String checkGlobalIdExistOrNot =
@@ -57,8 +57,8 @@ public class ProductDao extends AbstractDao {
         return query.getResultList();
     }
     
-    public Long getGlobalIdForProductByClientIdAndClientSkuId(Long id, String skuId) {
-        TypedQuery<Long> query = getQuery(getGlobalIdByClientSkuIdAndClientId, Long.class);
+    public Product getProductForProductByClientIdAndClientSkuId(Long id, String skuId) {
+        TypedQuery<Product> query = getQuery(getGlobalIdByClientSkuIdAndClientId, Product.class);
         query.setParameter("id", id);
         query.setParameter("skuId", skuId);
         return getSingle(query);

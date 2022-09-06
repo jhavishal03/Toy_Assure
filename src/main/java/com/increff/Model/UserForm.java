@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class UserForm {
     @NotEmpty
     private String name;
     @NotNull

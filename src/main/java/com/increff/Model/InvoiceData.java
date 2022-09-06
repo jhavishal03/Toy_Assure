@@ -1,4 +1,4 @@
-package com.increff.Dto;
+package com.increff.Model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +19,11 @@ public class InvoiceData {
     @XmlElement(name = "client-name")
     private String clientName;
     
+    @XmlElement(name = "customer-name")
+    private String customerName;
+    
+    @XmlElement(name = "channel-orderId")
+    private String channelOrderId;
     @XmlElement(name = "invoice-number")
     private Long invoiceNumber;
     

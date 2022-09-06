@@ -5,13 +5,13 @@ import com.increff.Constants.InvoiceType;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-public class ChannelDto {
+public class ChannelForm {
     @NotEmpty
     private String name;
     @NotNull
     private InvoiceType invoiceType;
     
-    public ChannelDto() {
+    public ChannelForm() {
     }
     
     public String getName() {

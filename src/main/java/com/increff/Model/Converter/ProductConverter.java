@@ -1,7 +1,7 @@
-package com.increff.Dto.Converter;
+package com.increff.Model.Converter;
 
-import com.increff.Dto.ProductDto;
-import com.increff.Model.Product;
+import com.increff.Model.ProductForm;
+import com.increff.Pojo.Product;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -9,15 +9,15 @@ import java.util.List;
 
 @Component
 public class ProductConverter {
-    public List<Product> productDtoToProductBulk(Long clientId, List<ProductDto> productDto) {
+    public List<Product> productDtoToProductBulk(Long clientId, List<ProductForm> productDto) {
         List<Product> products = new ArrayList<>();
-        for (ProductDto prd : productDto) {
+        for (ProductForm prd : productDto) {
             products.add(this.prodctDtoToProduct(clientId, prd));
         }
         return products;
     }
-
-    public Product prodctDtoToProduct(Long clientId, ProductDto productDto) {
+    
+    public Product prodctDtoToProduct(Long clientId, ProductForm productDto) {
         
         return Product.builder().clientId(clientId).brandId(productDto.getBrandId()).
                 clientSkuId(productDto.getClientSkuId()).name(productDto.getName()).mrp(productDto.getMrp())

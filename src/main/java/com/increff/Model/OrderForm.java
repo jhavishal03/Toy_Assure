@@ -2,17 +2,17 @@ package com.increff.Model;
 
 import com.increff.Constants.Status;
 
-public class OrderDto {
+public class OrderForm {
     private Long clientId;
     private Long customerId;
     private Long channelId;
     private String channelOrderId;
     private Status status;
     
-    public OrderDto() {
+    public OrderForm() {
     }
     
-    public OrderDto(Long clientId, Long customerId, Long channelId, String channelOrderId, Status status) {
+    public OrderForm(Long clientId, Long customerId, Long channelId, String channelOrderId, Status status) {
         this.clientId = clientId;
         this.customerId = customerId;
         this.channelId = channelId;

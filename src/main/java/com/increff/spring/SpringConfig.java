@@ -1,6 +1,7 @@
 package com.increff.spring;
 
 import org.springframework.context.annotation.*;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 @Configuration
@@ -15,5 +16,9 @@ public class SpringConfig {
         multipartResolver.setMaxUploadSize(100000);
         return multipartResolver;
     }
-
+    
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor() {
+        return new MethodValidationPostProcessor();
+    }
 }

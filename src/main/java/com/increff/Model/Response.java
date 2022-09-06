@@ -1,4 +1,4 @@
-package com.increff.Dto;
+package com.increff.Model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

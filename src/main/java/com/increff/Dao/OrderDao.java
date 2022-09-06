@@ -1,6 +1,6 @@
 package com.increff.Dao;
 
-import com.increff.Model.Order;
+import com.increff.Pojo.Order;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;

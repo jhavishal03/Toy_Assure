@@ -1,10 +1,9 @@
-package com.increff.Model;
+package com.increff.Pojo;
 
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
 
 @Entity
 @Table(name = "assure_OrderItem")
@@ -13,13 +12,14 @@ import javax.validation.constraints.Min;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class OrderItem extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemId;
-    @Min(0)
+    @Column(nullable = false)
     private Long orderId;
-    @Min(0)
+    @Column(nullable = false)
     private Long globalSkuId;
     private Long orderedQuantity = 0L;
     
@@ -27,7 +27,7 @@ public class OrderItem extends BaseModel {
     private Long allocatedQuantity = 0L;
     @ColumnDefault("0")
     private Long fulfilledQuantity = 0L;
-    @Min(0)
+    @ColumnDefault("0")
     private Double sellingPricePerUnit;
     
 }

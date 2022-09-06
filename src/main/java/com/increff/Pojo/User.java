@@ -1,4 +1,4 @@
-package com.increff.Model;
+package com.increff.Pojo;
 
 import com.increff.Constants.UserType;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +17,7 @@ public class User extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    
+    @Column(nullable = false)
     private String name;
     @Enumerated(value = EnumType.STRING)
     @ApiModelProperty
