@@ -1,8 +1,6 @@
 package com.increff.Service.impl;
 
 import com.increff.Dao.OrderItemDao;
-import com.increff.Dao.ProductDao;
-import com.increff.Dao.UserDao;
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.InvoiceData;
 import com.increff.Model.InvoiceItemData;
@@ -10,6 +8,8 @@ import com.increff.Pojo.Order;
 import com.increff.Pojo.OrderItem;
 import com.increff.Pojo.Product;
 import com.increff.Service.InvoiceService;
+import com.increff.Service.ProductService;
+import com.increff.Service.UserService;
 import org.apache.fop.apps.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,18 +31,23 @@ import java.util.List;
 public class InvoiceServiceImpl implements InvoiceService {
     
     private static StringBuilder fileName;
-    @Autowired
-    ProductDao productDao;
-    @Autowired
+    ProductService productService;
     OrderItemDao orderItemDao;
-    @Autowired
     private InventoryServiceImpl inventoryService;
+    
+    private UserService userService;
+    
     @Autowired
-    private UserDao userDao;
+    public InvoiceServiceImpl(ProductService productService, OrderItemDao orderItemDao,
+                              InventoryServiceImpl inventoryService, UserService userService) {
+        this.productService = productService;
+        this.orderItemDao = orderItemDao;
+        this.inventoryService = inventoryService;
+        this.userService = userService;
+    }
     
     public void generateInvoice(List<OrderItem> orderItems, Order order) throws URISyntaxException {
         File xslFile = new File(Thread.currentThread().getContextClassLoader().getResource("Template.xsl").toURI());
-        fileName = new StringBuilder("Invoice_For_");
         String xmlInput = getXmlString(orderItems, order);
         try {
             createInvoicePdf(xmlInput, xslFile);
@@ -54,9 +59,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
     
     private String getXmlString(List<OrderItem> orderItems, Order order) {
-        String clientName = userDao.findUserById(order.getClientId()).getName();
-        String customerName = userDao.findUserById(order.getCustomerId()).getName();
-        fileName.append(clientName).append("_orderId_").append(order.getOrderId()).append(".pdf");
+        String clientName = userService.findUserById(order.getClientId()).getName();
+        String customerName = userService.findUserById(order.getCustomerId()).getName();
+        fileName = new StringBuilder("Invoice_").append(clientName).append("_orderId_").append(order.getOrderId()).append(".pdf");
         InvoiceData invoiceData = InvoiceData.builder().
                 invoiceItemData(this.convertOrderItemToInvoiceOrderItem(orderItems)).customerName(customerName)
                 .invoiceNumber(order.getOrderId()).invoiceDate(new Timestamp(System.currentTimeMillis()).toString())
@@ -82,7 +87,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private List<InvoiceItemData> convertOrderItemToInvoiceOrderItem(List<OrderItem> orderItems) {
         List<InvoiceItemData> invoiceItemDataList = new ArrayList<InvoiceItemData>();
         for (OrderItem orderItem : orderItems) {
-            Product product = productDao.findProductByGlobalSkuId(orderItem.getGlobalSkuId());
+            Product product = productService.findProductByGlobalSkuID(orderItem.getGlobalSkuId());
             InvoiceItemData invoiceItemData = InvoiceItemData.builder()
                     .productName(product.getName()).clientSkuid(orderItem.getGlobalSkuId().toString())
                     .sellingPricePerUnit(orderItem.getSellingPricePerUnit())

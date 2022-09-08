@@ -3,13 +3,18 @@ package com.increff.Service.impl;
 import com.increff.Constants.InvoiceType;
 import com.increff.Constants.Status;
 import com.increff.Constants.UserType;
-import com.increff.Dao.*;
+import com.increff.Dao.OrderDao;
+import com.increff.Dao.OrderItemDao;
+import com.increff.Dao.ProductDao;
 import com.increff.Exception.ApiGenericException;
+import com.increff.Model.OrderAllocatedData;
 import com.increff.Model.OrderChannelRequestDto;
 import com.increff.Model.OrderItemCsvDto;
 import com.increff.Pojo.*;
 import com.increff.Service.BinService;
+import com.increff.Service.ChannelService;
 import com.increff.Service.OrderService;
+import com.increff.Service.UserService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,44 +30,44 @@ import java.util.logging.Logger;
 public class OrderServiceImpl implements OrderService {
     
     private static Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
-    private UserDao userDao;
-    private ChannelDao channelDao;
+    
+    
+    private UserService userService;
+    private ChannelService channelService;
     private OrderDao orderDao;
     private ProductDao productDao;
     private OrderItemDao orderItemDao;
-    private InventoryDao inventoryDao;
-    private BinDao binDao;
+    private InventoryServiceImpl inventoryService;
+    
     private BinService binService;
-    @Autowired
+    
     private InvoiceServiceImpl invoiceService;
     
     @Autowired
-    public OrderServiceImpl(UserDao userDao, ChannelDao channelDao, OrderDao orderDao,
-                            ProductDao productDao,
-                            OrderItemDao orderItemDao, InventoryDao inventoryDao,
-                            BinDao binDao, BinService binService) {
-        this.userDao = userDao;
-        this.channelDao = channelDao;
+    public OrderServiceImpl(UserService userService, ChannelService channelService, OrderDao orderDao, ProductDao productDao,
+                            OrderItemDao orderItemDao, InventoryServiceImpl inventoryService,
+                            BinService binService, InvoiceServiceImpl invoiceService) {
+        this.userService = userService;
+        this.channelService = channelService;
         this.orderDao = orderDao;
         this.productDao = productDao;
         this.orderItemDao = orderItemDao;
-        this.inventoryDao = inventoryDao;
-        this.binDao = binDao;
+        this.inventoryService = inventoryService;
         this.binService = binService;
+        this.invoiceService = invoiceService;
     }
-    
     
     @Transactional(rollbackOn = ApiGenericException.class)
     @Override
     public List<OrderItem> createOrderInternalChannel(String customerName, String clientName, String channelOrderId, List<OrderItemCsvDto> orders) {
         //checking whether customer exist or not
         List<OrderItem> result = null;
-        Optional<User> customer = userDao.getUserByNameAndType(customerName, UserType.CUSTOMER);
+        Optional<User> customer = userService.getUserByNameAndType(customerName, UserType.CUSTOMER);
         if (!customer.isPresent() || !customer.get().getType().getValue().equals("Customer")) {
             throw new ApiGenericException("Customer not present with name " + customerName);
         }
         //checking client exist or not
-        Optional<User> client = userDao.getUserByNameAndType(clientName, UserType.CLIENT);
+        Optional<User> client = userService.getUserByNameAndType(clientName, UserType.CLIENT);
         if (!client.isPresent() || !client.get().getType().equals(UserType.CLIENT)) {
             throw new ApiGenericException("Client  not present with name" + clientName);
         }
@@ -77,32 +82,29 @@ public class OrderServiceImpl implements OrderService {
     }
     
     @Override
-    @Transactional(rollbackOn = ApiGenericException.class)
+    @Transactional
     public List<OrderItem> createOrderExternalChannel(OrderChannelRequestDto orderRequest) {
         List<OrderItem> result = null;
         //repetitive code  can be used in a method
-        Optional<User> customer = Optional.ofNullable(userDao.findUserById(orderRequest.getCustomerId()));
+        Optional<User> customer = Optional.ofNullable(userService.findUserById(orderRequest.getCustomerId()));
         if (!customer.isPresent()) {
             throw new ApiGenericException("Customer not present with id " + orderRequest.getCustomerId());
         }
         //checking client exist or not
-        Optional<User> client = Optional.ofNullable(userDao.findUserById(orderRequest.getClientId()));
+        Optional<User> client = Optional.ofNullable(userService.findUserById(orderRequest.getClientId()));
         if (!client.isPresent() || !client.get().getType().equals(UserType.CLIENT)) {
             throw new ApiGenericException("Client  not present with id " + orderRequest.getClientId());
         }
         
-        Optional<Channel> channel = channelDao.checkChannelExistOrNot(orderRequest.getChannelName());
-        if (!channel.isPresent()) {
-            throw new ApiGenericException("channel nahi hai");
-            
-        }
+        Channel channel = channelService.getChannelByChannelName(orderRequest.getChannelName());
+        
         if (isChannelOrderDuplicate(orderRequest.getChannelOrderId())) {
             throw new ApiGenericException("channel OrderId duplicate");
         }
         Order order = orderDao.addOrder(upsertOrder(orderRequest.getCustomerId(), orderRequest.getClientId(),
                 orderRequest.getChannelOrderId(), orderRequest.getChannelName(), InvoiceType.CHANNEL));
         result = upsertOrderItemDetailsExternal(orderRequest.getClientId(), order.getOrderId(),
-                channel.get().getChannelId(), orderRequest.getOrderItems());
+                channel.getChannelId(), orderRequest.getOrderItems());
         if (CollectionUtils.isEmpty(result)) {
             throw new ApiGenericException("Order not created as All the provided SkuIds not present ");
         }
@@ -112,19 +114,22 @@ public class OrderServiceImpl implements OrderService {
     private boolean isChannelOrderDuplicate(String channelOrderId) {
         
         Long isChannelOrderIdExist = orderDao.checkChannelOrderIdExist(channelOrderId);
-        return isChannelOrderIdExist == 0l ? false : true;
+        
+        return isChannelOrderIdExist == 1l ? true : false;
     }
     
     private List<OrderItem> upsertOrderItemDetailsInternal(Long clientId, Long orderId, List<OrderItemCsvDto> orders) {
         List<OrderItem> orderItemList = new ArrayList<>();
         //for each product
         for (OrderItemCsvDto order : orders) {
-            Product savedProduct = productDao.getProductForProductByClientIdAndClientSkuId(clientId, order.getClientSkuId());
-            if (savedProduct != null) {
-                orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(savedProduct.getGlobalSkuId()).
-                        orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(order.getSellingPricePerUnit())
-                        .allocatedQuantity(0l).fulfilledQuantity(0l).build());
+            Product savedProduct = productDao.getProductByClientIdAndClientSkuId(clientId, order.getClientSkuId());
+            if (savedProduct == null) {
+                throw new ApiGenericException("Product not exists for order with SKuID", order.getClientSkuId());
             }
+            orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(savedProduct.getGlobalSkuId()).
+                    orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(order.getSellingPricePerUnit())
+                    .allocatedQuantity(0l).fulfilledQuantity(0l).build());
+            
         }
         if (CollectionUtils.isEmpty(orderItemList)) {
             throw new ApiGenericException("All the provided SkuIds not present");
@@ -135,19 +140,17 @@ public class OrderServiceImpl implements OrderService {
     
     
     private Order upsertOrder(Long customerId, Long clientId, String channelOrderId, String channelname, InvoiceType type) {
-        Long channelId = channelDao.getChannelIdByNameAndType(channelname, type);
-        if (channelId == null) {
-            throw new ApiGenericException("channel Not exist");
-        }
+        Channel channel = channelService.getChannelByNameAndType(channelname, type);
+        
         Order order = Order.builder().customerId(customerId).clientId(clientId)
-                .channelId(channelId).channelOrderId(channelOrderId).status(Status.CREATED).build();
+                .channelId(channel.getChannelId()).channelOrderId(channelOrderId).status(Status.CREATED).build();
         
         return order;
     }
     
     @Override
     @Transactional(rollbackOn = ApiGenericException.class)
-    public List<OrderItem> allocateOrderPerId(Long orderId) {
+    public OrderAllocatedData allocateOrderPerId(Long orderId) {
         Order order = orderDao.findOrderByOrderId(orderId);
         List<OrderItem> res = new ArrayList<>();
         if (order == null) {
@@ -166,10 +169,8 @@ public class OrderServiceImpl implements OrderService {
         
         boolean isOrderAllocated = true;
         for (OrderItem orderItem : orderItems) {
-            Inventory inventory = inventoryDao.getInvetoryBySkuId(orderItem.getGlobalSkuId());
-            if (inventory == null) {
-                throw new ApiGenericException("InventoryDetails  not exist for Global Sku Id" + orderItem.getGlobalSkuId());
-            }
+            Inventory inventory = inventoryService.getInventoryByGlobalSkuId(orderItem.getGlobalSkuId());
+            
             Long allocatedItem = Math.min((orderItem.getOrderedQuantity() - orderItem.getAllocatedQuantity())
                     , inventory.getAvailableQuantity());
             
@@ -186,11 +187,10 @@ public class OrderServiceImpl implements OrderService {
         if (isOrderAllocated == true) {
             order.setStatus(Status.ALLOCATED);
             orderDao.addOrder(order);
-        } else {
-            throw new ApiGenericException("Order Not Allocated" + res.toString());
+            return new OrderAllocatedData(false, res);
         }
+        return new OrderAllocatedData(true, res);
         
-        return res;
     }
     
     @Override
@@ -221,11 +221,14 @@ public class OrderServiceImpl implements OrderService {
     
     private List<OrderItem> upsertOrderItemDetailsExternal(Long clientId, Long orderId, Long channelId, List<OrderItemCsvDto> orderItems) {
         List<OrderItem> orderItemList = new ArrayList<>();
+        List<String> skuIdsNotPresent = new ArrayList<>();
         for (OrderItemCsvDto order : orderItems) {
-            Long globalSkuId = channelDao.getGlobalSkuIDByChannelIdAndSkuId(clientId, channelId, order.getClientSkuId());
-            Double price = productDao.findMrpByGlobalSkuID(globalSkuId);
-            if (globalSkuId != null) {
-                order.setSellingPricePerUnit(price);
+            Long globalSkuId = channelService.getGlobalSkuIDByClientIdAndChannelIdAndSkuId(clientId, channelId, order.getClientSkuId());
+            if (globalSkuId == null) {
+                skuIdsNotPresent.add(order.getClientSkuId());
+            } else {
+//                Double price = productDao.findMrpByGlobalSkuID(globalSkuId);
+//                order.setSellingPricePerUnit(price);÷
                 orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(globalSkuId).
                         orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(order.getSellingPricePerUnit())
                         .allocatedQuantity(0l).fulfilledQuantity(0l).build());
@@ -234,20 +237,22 @@ public class OrderServiceImpl implements OrderService {
         if (CollectionUtils.isEmpty(orderItemList)) {
             throw new ApiGenericException("All the provided SkuIds not present or channel Listing is not provided");
         }
-        if (Integer.compare(orderItems.size(), orderItemList.size()) != 0) {
+        if (skuIdsNotPresent.size() != 0) {
             logger.info("some of the Sku ids are not exist or channel listing not provided");
+            throw new ApiGenericException("These Sku Ids Donot have channelListings for client", skuIdsNotPresent);
+            
         }
         return orderItemDao.addOrderItems(orderItemList);
         
     }
     
-    private void checkCustomerAndclientValidation(String customerName, String clientName) {
-        Optional<User> customer = userDao.getUserByNameAndType(customerName, UserType.CUSTOMER);
+    private void checkCustomerAndClientValidation(String customerName, String clientName) {
+        Optional<User> customer = userService.getUserByNameAndType(customerName, UserType.CUSTOMER);
         if (!customer.isPresent() || !customer.get().getType().getValue().equals("Customer")) {
             throw new ApiGenericException("Customer not present with name " + customerName);
         }
         //checking client exist or not
-        Optional<User> client = userDao.getUserByNameAndType(clientName, UserType.CLIENT);
+        Optional<User> client = userService.getUserByNameAndType(clientName, UserType.CLIENT);
         if (!client.isPresent() || !client.get().getType().equals(UserType.CLIENT)) {
             throw new ApiGenericException("Client  not present with name" + clientName);
         }

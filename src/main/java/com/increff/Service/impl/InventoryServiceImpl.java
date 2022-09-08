@@ -20,4 +20,12 @@ public class InventoryServiceImpl {
         return inventory;
     }
     
+    public void addInventory(Inventory inventory) {
+        inventoryDao.addInventoryEntity(inventory);
+    }
+    
+    public Inventory getInventoryByGlobalSkuId(Long globalSkuId) {
+        Inventory inventory = inventoryDao.getInvetoryBySkuId(globalSkuId);
+        return inventory;
+    }
 }

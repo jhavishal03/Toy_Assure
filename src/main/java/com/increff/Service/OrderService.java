@@ -1,5 +1,6 @@
 package com.increff.Service;
 
+import com.increff.Model.OrderAllocatedData;
 import com.increff.Model.OrderChannelRequestDto;
 import com.increff.Model.OrderItemCsvDto;
 import com.increff.Pojo.OrderItem;
@@ -14,7 +15,7 @@ public interface OrderService {
     
     public List<OrderItem> createOrderExternalChannel(OrderChannelRequestDto orderRequest);
     
-    public List<OrderItem> allocateOrderPerId(Long orderId);
+    public OrderAllocatedData allocateOrderPerId(Long orderId);
     
     public void generateFulfilledInvoice(Long orderId) throws URISyntaxException;
     

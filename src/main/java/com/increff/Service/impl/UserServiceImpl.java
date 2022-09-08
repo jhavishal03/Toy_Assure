@@ -1,5 +1,6 @@
 package com.increff.Service.impl;
 
+import com.increff.Constants.UserType;
 import com.increff.Dao.UserDao;
 import com.increff.Exception.ApiGenericException;
 import com.increff.Pojo.User;
@@ -17,12 +18,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addUser(User user) {
         Optional<User> savedUser = userDao.getUserByNameAndType(user.getName(), user.getType());
-        if (savedUser.isPresent() || savedUser.get().getName().equalsIgnoreCase(user.getName())) {
+        if (savedUser.isPresent() && savedUser.get().getName().equalsIgnoreCase(user.getName())) {
             throw new ApiGenericException("User Already Present with name " + user.getName());
         }
-        
-        User usr = User.builder().name(user.getName()).type(user.getType()).build();
-        return userDao.addUser(usr);
+
+//        User usr = User.builder().name(user.getName()).type(user.getType()).build();
+        return userDao.addUser(user);
     }
     
     @Override
@@ -32,5 +33,10 @@ public class UserServiceImpl implements UserService {
             throw new ApiGenericException("User not present with id " + id);
         }
         return user.get();
+    }
+    
+    @Override
+    public Optional<User> getUserByNameAndType(String name, UserType type) {
+        return userDao.getUserByNameAndType(name.toLowerCase(), type);
     }
 }

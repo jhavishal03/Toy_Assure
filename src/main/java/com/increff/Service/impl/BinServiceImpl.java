@@ -1,17 +1,20 @@
 package com.increff.Service.impl;
 
 import com.increff.Dao.BinDao;
-import com.increff.Dao.InventoryDao;
-import com.increff.Dao.ProductDao;
+import com.increff.Exception.ApiGenericException;
+import com.increff.Model.BinSkuDto;
 import com.increff.Model.Converter.BinConverter;
 import com.increff.Pojo.BinSku;
 import com.increff.Pojo.Inventory;
+import com.increff.Pojo.Product;
 import com.increff.Service.BinService;
+import com.increff.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BinServiceImpl implements BinService {
@@ -22,10 +25,10 @@ public class BinServiceImpl implements BinService {
     private BinConverter binConverter;
     
     @Autowired
-    private ProductDao productDao;
+    private ProductService productService;
     
     @Autowired
-    private InventoryDao inventoryDao;
+    private InventoryServiceImpl inventoryService;
     
     @Override
     public List<Long> addBinToSystem(int num) {
@@ -33,41 +36,45 @@ public class BinServiceImpl implements BinService {
     }
     
     @Override
-    @Transactional
-    public List<BinSku> uploadBinData(List<BinSku> binSkus) {
+    @Transactional(rollbackOn = ApiGenericException.class)
+    public List<BinSku> uploadBinData(Long clientId, List<BinSkuDto> binSkus) {
         List<Long> availableBins = binDao.getAllBinIds();
-        List<Long> availableGlobalSkus = productDao.getGlobalSkuIds();
         Set<BinSku> entitiesToBeNewlyAdded = new HashSet<>();
         List<BinSku> result = new ArrayList<>();
-        
-        for (BinSku bin : binSkus) {
+        List<Long> binIds = binSkus.stream().map(bin -> bin.getBinId()).
+                filter(bin -> !availableBins.contains(bin)).collect(Collectors.toList());
+        if (binIds.size() != 0) {
+            throw new ApiGenericException("Some of the Bins Not exist in system ", binIds);
+        }
+        for (BinSkuDto binDto : binSkus) {
             Long changeInProductQuantity = 0L;
-            if (!availableBins.contains(bin.getBinId()) || !availableGlobalSkus.contains(bin.getGlobalSkuId())) {
-                continue;
-            }
-            Optional<BinSku> getSavedBin = Optional.ofNullable(binDao.getBinEntityByBinIdAndSkuId(bin.getGlobalSkuId(),
-                    bin.getBinId()));
+            Product product = productService.findProductByClientIdAndSkuId(clientId, binDto.getClientSkuId());
+            Long globalSku = product.getGlobalSkuId();
             
+            Optional<BinSku> getSavedBin = Optional.ofNullable(binDao.getBinEntityByBinIdAndSkuId(globalSku,
+                    binDto.getBinId()));
+            //product is added first time in bin
             if (!getSavedBin.isPresent()) {
-                
+                BinSku bin = BinSku.builder().binId(binDto.getBinId())
+                        .quantity(binDto.getQuantity())
+                        .globalSkuId(globalSku).build();
                 entitiesToBeNewlyAdded.add(bin);
-                changeInProductQuantity = bin.getQuantity();
+                changeInProductQuantity = binDto.getQuantity();
             } else {
                 BinSku savedBin = getSavedBin.get();
-                changeInProductQuantity = bin.getQuantity() - savedBin.getQuantity();
-                savedBin.setQuantity(bin.getQuantity());
+                changeInProductQuantity = binDto.getQuantity() - savedBin.getQuantity();
+                savedBin.setQuantity(binDto.getQuantity());
                 result.add(savedBin);
             }
             //inventory update call to be made
-            Inventory inventory = inventoryDao.getInvetoryBySkuId(bin.getGlobalSkuId());
+            Inventory inventory = inventoryService.getInventoryByGlobalSkuId(globalSku);
             if (inventory == null) {
                 Inventory inventoryTobeAdded = new Inventory();
-                inventoryTobeAdded.setGlobalSkuId(bin.getGlobalSkuId());
+                inventoryTobeAdded.setGlobalSkuId(globalSku);
                 inventoryTobeAdded.setAvailableQuantity(changeInProductQuantity);
-                inventoryDao.addInventoryEntity(inventoryTobeAdded);
+                inventoryService.addInventory(inventoryTobeAdded);
             } else {
                 inventory.setAvailableQuantity(inventory.getAvailableQuantity() + changeInProductQuantity);
-                inventoryDao.updateInventoryEntity(inventory);
             }
         }
         

@@ -1,13 +1,14 @@
 package com.increff.Service.impl;
 
 import com.increff.Dao.ProductDao;
-import com.increff.Dao.UserDao;
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.Converter.ProductConverter;
 import com.increff.Model.ProductForm;
 import com.increff.Pojo.Product;
 import com.increff.Pojo.User;
 import com.increff.Service.ProductService;
+import com.increff.Service.UserService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class ProductServiceImpl implements ProductService {
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
     
     @Autowired
     private ProductDao productDao;
@@ -31,7 +32,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(rollbackOn = ApiGenericException.class)
     public List<Product> uploadProductDetailsForClient(Long clientId, List<Product> products) {
-        Optional<User> user = Optional.ofNullable(userDao.findUserById(clientId));
+        Optional<User> user = Optional.ofNullable(userService.findUserById(clientId));
         if (!user.isPresent()) {
             throw new ApiGenericException("Client not present with clientId" + clientId);
         }
@@ -47,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> uploadProductDetailsForClientList(Long clientId, List<ProductForm> productDtoList) {
         
-        Optional<User> savedUser = Optional.ofNullable(userDao.findUserById(clientId));
+        Optional<User> savedUser = Optional.ofNullable(userService.findUserById(clientId));
         if (!savedUser.isPresent()) {
             throw new ApiGenericException("Client not present with clientId" + clientId);
         }
@@ -58,6 +59,34 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productConverter.productDtoToProductBulk(clientId, productDtoList);
         return upsertClientSkuIds(clientId, savedClientSkuIds, products);
         
+    }
+    
+    @Override
+    public Product findProductByGlobalSkuID(Long globalSku) {
+        Product product = productDao.findProductByGlobalSkuId(globalSku);
+        if (product == null) {
+            throw new ApiGenericException("Product doset Not exist with global Id-> " + globalSku);
+        }
+        return product;
+    }
+    
+    @Override
+    public List<Long> getAllGlobalSkuIds() {
+        List<Long> res = productDao.getGlobalSkuIds();
+        if (CollectionUtils.isEmpty(res)) {
+            throw new ApiGenericException("No products exist in system");
+        }
+        return res;
+    }
+    
+    @Override
+    public Product findProductByClientIdAndSkuId(Long clientId, String clientSkuId) {
+        Product product = productDao.getProductByClientIdAndClientSkuId(clientId, clientSkuId);
+        if (product == null) {
+            throw new ApiGenericException("Product not exist in system for clientId " + clientId + "" +
+                    " and SkuId " + clientSkuId);
+        }
+        return product;
     }
     
     private List<Product> upsertClientSkuIds(Long clientId, List<String> savedClientSkuIds, List<Product> products) {
@@ -79,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
     private List<Product> updateGlobalIdForExistingProduct(Long clientId, List<Product> productsToBeUpdated) {
         List<Product> res = new ArrayList<>();
         for (Product product : productsToBeUpdated) {
-            Product savedProduct = productDao.getProductForProductByClientIdAndClientSkuId(clientId, product.getClientSkuId());
+            Product savedProduct = productDao.getProductByClientIdAndClientSkuId(clientId, product.getClientSkuId());
             savedProduct.setMrp(product.getMrp());
             savedProduct.setDescription(product.getDescription());
             savedProduct.setBrandId(product.getBrandId());
