@@ -1,6 +1,8 @@
 package com.increff.Model;
 
+import com.increff.Util.MustAValidNumber;
 import com.opencsv.bean.CsvBindByPosition;
+import com.opencsv.bean.validators.PreAssignmentValidator;
 
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
@@ -14,6 +16,7 @@ public class ProductForm implements Serializable {
     @CsvBindByPosition(position = 2, required = true)
     private String brandId;
     @CsvBindByPosition(position = 3, required = true)
+    @PreAssignmentValidator(validator = MustAValidNumber.class)
     private double mrp;
     @CsvBindByPosition(position = 4, required = true)
     private String description;

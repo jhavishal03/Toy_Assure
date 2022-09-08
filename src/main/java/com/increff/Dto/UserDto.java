@@ -13,7 +13,7 @@ public class UserDto {
     UserService userService;
     
     public User createUserDto(UserForm userForm) {
-        User user = User.builder().name(userForm.getName()).
+        User user = User.builder().name(userForm.getName().trim().toLowerCase()).
                 type(userForm.getType()).build();
         return userService.addUser(user);
     }

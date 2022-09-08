@@ -30,7 +30,7 @@ public class ChannelController {
     }
     
     @ApiOperation(value = "Api to Create Channel ")
-    @PostMapping("/createChannel")
+    @PostMapping("/create-channel")
     public ResponseEntity<Response> createChannel(@RequestBody @Valid ChannelForm channelForm) {
         Channel channel = channelDto.addChannel(channelForm);
         Response response = new Response("Channel created succesfully", channel);
@@ -38,7 +38,7 @@ public class ChannelController {
     }
     
     @ApiOperation(value = "Api to enter channel Listing details by csv File")
-    @PostMapping("/addChannelListings")
+    @PostMapping("/add-channel-listings")
     public ResponseEntity<Response> createChannelListing(@RequestParam String channelName, @RequestParam String clientName,
                                                          @RequestBody MultipartFile channelListings) {
         List<ChannelListing> res = new ArrayList<>();

@@ -160,7 +160,7 @@
             <artifactId>commons-fileupload</artifactId>
             <version>1.4</version>
         </dependency>
-        <!-- Test -->
+        <!-- TestData -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

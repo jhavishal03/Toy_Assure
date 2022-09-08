@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,25 +23,31 @@ import java.util.stream.Collectors;
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ApiGenericException.class)
     public final ResponseEntity<?> handleUserExceptiont(ApiGenericException ex, WebRequest request) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        Map<String, Object> res = new HashMap<>();
+        res.put("message", ex.getMessage());
+        if (ex.getData() != null) {
+            res.put("data", ex.getData());
+        }
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
     
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<?> handleGenericException(Exception ex, WebRequest request) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    
     
     @ExceptionHandler(CSVFileParsingException.class)
     public final ResponseEntity<?> handleCSVException(Exception ex, WebRequest request) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDate.now());
-        body.put("status", status.value());
+//        body.put("timestamp", LocalDate.now());
+//        body.put("status", status.value());
         
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -51,6 +57,6 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         
         body.put("errors", errors);
         
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

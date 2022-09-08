@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public class ChannelDao extends AbstractDao {
     private static String checkChannelNameExistOrNot = "select c from Channel c where name=:channelName";
-    private static String getChannelIdByNameAndType = "select channelId from Channel c where name=:name and invoiceType=:type ";
+    private static String getChannelIdByNameAndType = "select c from Channel c where name=:name and invoiceType=:type ";
     
     
     private static String getGlobalIdByClientIdAndChannelSkuID =
@@ -22,7 +22,7 @@ public class ChannelDao extends AbstractDao {
                     " clientId=:clientId and channelSkuId=:skuId";
     
     private static String findChannelListingByChannelIdAndGlobalSkuId = "select c from ChannelListing c where channelId=:channelId and " + " " +
-            " clientId=:clientId and globalSkuId=:skuId";
+            " clientId=:clientId and globalSkuId=:globalSkuId and channelSkuId=:skuId";
     
     public Optional<Channel> checkChannelExistOrNot(String channelName) {
         TypedQuery<Channel> query = getQuery(checkChannelNameExistOrNot, Channel.class);
@@ -36,16 +36,18 @@ public class ChannelDao extends AbstractDao {
         return channel;
     }
     
-    public ChannelListing findChannelListingBySkuIDByChannelIdAndSkuId(Long clientId, Long channelId, Long skuId) {
+    public ChannelListing findChannelListingBySkuIDByChannelIdAndSkuId(Long clientId, Long channelId, Long globalSkuId
+            , String skuId) {
         TypedQuery<ChannelListing> query = getQuery(findChannelListingByChannelIdAndGlobalSkuId, ChannelListing.class);
         query.setParameter("clientId", clientId);
         query.setParameter("channelId", channelId);
+        query.setParameter("globalSkuId", globalSkuId);
         query.setParameter("skuId", skuId);
         return getSingle(query);
     }
     
-    public Long getChannelIdByNameAndType(String name, InvoiceType type) {
-        TypedQuery<Long> query = getQuery(getChannelIdByNameAndType, Long.class);
+    public Channel getChannelIdByNameAndType(String name, InvoiceType type) {
+        TypedQuery<Channel> query = getQuery(getChannelIdByNameAndType, Channel.class);
         query.setParameter("name", name);
         query.setParameter("type", type);
         return getSingle(query);

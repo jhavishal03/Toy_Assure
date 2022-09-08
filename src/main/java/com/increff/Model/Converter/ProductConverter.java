@@ -20,7 +20,8 @@ public class ProductConverter {
     public Product prodctDtoToProduct(Long clientId, ProductForm productDto) {
         
         return Product.builder().clientId(clientId).brandId(productDto.getBrandId()).
-                clientSkuId(productDto.getClientSkuId()).name(productDto.getName()).mrp(productDto.getMrp())
+                clientSkuId(productDto.getClientSkuId()).name(productDto.getName().trim().toLowerCase())
+                .mrp(productDto.getMrp())
                 .description(productDto.getDescription()).build();
     }
 }

@@ -1,6 +1,7 @@
 package com.increff.controller;
 
 import com.increff.Dto.OrderDto;
+import com.increff.Model.OrderAllocatedData;
 import com.increff.Model.OrderChannelRequestDto;
 import com.increff.Model.Response;
 import com.increff.Pojo.OrderItem;
@@ -31,7 +32,7 @@ public class OrderController {
     private OrderDto orderDto;
     
     @ApiOperation(value = "Api to create Order using internal channel")
-    @PostMapping("/customer/{customerName}/client/{clientName}/createOrder")
+    @PostMapping("/customer/{customerName}/client/{clientName}/create-order")
     public ResponseEntity<Response> createOrderInternalChannel(@PathVariable("customerName") String customerName, @PathVariable("clientName") String clientName,
                                                                @RequestParam(required = true) String channelOrderId, @RequestBody MultipartFile orderItems) {
         List<OrderItem> res = orderDto.createOrderInternalChannel(customerName, clientName, channelOrderId, orderItems);
@@ -40,28 +41,34 @@ public class OrderController {
     }
     
     @ApiOperation(value = "Api to create order using external channel")
-    @PostMapping("/order/channel/createOrder")
+    @PostMapping("/order/channel/create-order")
     public ResponseEntity<Response> createOrderChannel(@RequestBody @Valid OrderChannelRequestDto orderRequest) {
         List<OrderItem> res = orderDto.createOrderExternalChannel(orderRequest);
         return new ResponseEntity<>(new Response("external order created", res), HttpStatus.OK);
     }
     
     @ApiOperation(value = "Api to allocate Order by passing order Id")
-    @PostMapping("/order/{orderId}/allocateOrders")
+    @PostMapping("/order/{orderId}/allocate-orders")
     public ResponseEntity<Response> allocateOrder(@PathVariable("orderId") @Min(0) Long orderId) {
-        List<OrderItem> res = orderDto.allocateOrderPerId(orderId);
-        Response response = new Response("Order allocated", res);
+        Response response = null;
+        OrderAllocatedData res = orderDto.allocateOrderPerId(orderId);
+        
+        if (res.isAllocated()) {
+            response = new Response("Order allocated", res);
+        } else {
+            response = new Response("order Partially allocated", res);
+        }
         return new ResponseEntity<>(response, HttpStatus.OK);
         
     }
     
-    @GetMapping("/order/{orderId}/fulfillOrder")
+    @GetMapping("/order/{orderId}/fulfill-order")
     public ResponseEntity<Response> generateInvoice(@PathVariable("orderId") @Min(0) Long orderId) throws URISyntaxException {
         orderService.generateFulfilledInvoice(orderId);
         return new ResponseEntity<>(new Response<>("Pdf created", ""), HttpStatus.CREATED);
     }
     
-    @GetMapping("/order/{orderId}/getOrderDetails")
+    @GetMapping("/order/{orderId}/get-order-details")
     public ResponseEntity<Response> getOrderDetailsByOrderId(@PathVariable("orderId") @Min(0) Long orderId) {
         List<OrderItem> res = orderDto.getOrderDetailsByOrderId(orderId);
         

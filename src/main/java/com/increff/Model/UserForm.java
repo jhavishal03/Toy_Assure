@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +13,7 @@ import javax.validation.constraints.NotNull;
 public class UserForm {
     @NotEmpty
     private String name;
-    @NotNull
+    
     private UserType type;
     
 }

@@ -1,7 +1,6 @@
 package com.increff.Pojo;
 
 import com.increff.Constants.UserType;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,7 +19,6 @@ public class User extends BaseModel {
     @Column(nullable = false)
     private String name;
     @Enumerated(value = EnumType.STRING)
-    @ApiModelProperty
     private UserType type;
     
 }

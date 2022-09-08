@@ -57,7 +57,7 @@ public class ProductDao extends AbstractDao {
         return query.getResultList();
     }
     
-    public Product getProductForProductByClientIdAndClientSkuId(Long id, String skuId) {
+    public Product getProductByClientIdAndClientSkuId(Long id, String skuId) {
         TypedQuery<Product> query = getQuery(getGlobalIdByClientSkuIdAndClientId, Product.class);
         query.setParameter("id", id);
         query.setParameter("skuId", skuId);
@@ -68,7 +68,7 @@ public class ProductDao extends AbstractDao {
         TypedQuery<Product> query = getQuery(checkProductExistByClientSkuAndClientId, Product.class);
         query.setParameter("id", id);
         query.setParameter("skuId", skuId);
-        return query.getSingleResult();
+        return getSingle(query);
     }
     
     @Transactional

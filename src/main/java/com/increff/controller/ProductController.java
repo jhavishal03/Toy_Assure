@@ -32,7 +32,7 @@ public class ProductController {
     }
     
     @ApiOperation(value = "Api to upload product details by CSV file")
-    @PostMapping("/products/{clientId}/uploadProductDetails")
+    @PostMapping("/products/{clientId}/upload-product-details")
     public ResponseEntity<Response> uploadProductDetails(@PathVariable("clientId") Long clientId,
                                                          @RequestBody MultipartFile file) throws Exception {
         List<Product> products = productDto.uploadProductDetails(clientId, file);
@@ -40,7 +40,7 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
-    @PostMapping("/products/{clientId}/uploadProductDetailsJson")
+    @PostMapping("/products/{clientId}/upload-product-details-json")
     @ApiOperation(value = "Api to upload Product details")
     public ResponseEntity<Response> uploadProduct(@PathVariable("clientId") Long clientId,
                                                   @RequestBody @Valid List<ProductForm> productDtoList) throws Exception {

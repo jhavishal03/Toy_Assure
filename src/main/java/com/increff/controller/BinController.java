@@ -20,7 +20,7 @@ public class BinController {
     @Autowired
     private BinDto binDto;
     
-    @PostMapping("/createBins")
+    @PostMapping("/create-bins")
     @ApiOperation(value = "Api to add Num of bins to the system")
     public ResponseEntity<Response> addBins(@RequestParam int numBin) {
         List<Long> res = binDto.addBinsToSystem(numBin);
@@ -28,9 +28,10 @@ public class BinController {
     }
     
     @ApiOperation(value = "This Api is used to update quantity of product in a Bin")
-    @PostMapping(value = "/updateBinData")
-    public ResponseEntity<Response> uploadBinWiseInventory(@RequestBody MultipartFile file) {
-        List<BinSku> updatedData = binDto.uploadBinData(file);
+    @PostMapping(value = "/bin/{client-Id}/upload-data")
+    public ResponseEntity<Response> uploadBinWiseInventory(@PathVariable("client-Id") Long clientId,
+                                                           @RequestBody MultipartFile file) {
+        List<BinSku> updatedData = binDto.uploadBinData(clientId, file);
         return new ResponseEntity<>(
                 new Response("product quantity updated in Bins", updatedData), HttpStatus.OK);
     }

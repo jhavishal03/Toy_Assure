@@ -1,7 +1,9 @@
 package com.increff.Model;
 
 
+import com.increff.Util.MustAValidNumber;
 import com.opencsv.bean.CsvBindByPosition;
+import com.opencsv.bean.validators.PreAssignmentValidator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +15,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BinSkuDto {
     @CsvBindByPosition(position = 0, required = true)
+    @PreAssignmentValidator(validator = MustAValidNumber.class)
     private Long binId;
     @CsvBindByPosition(position = 1, required = true)
-    private Long globalSkuId;
+    private String clientSkuId;
     @CsvBindByPosition(position = 2, required = true)
+    @PreAssignmentValidator(validator = MustAValidNumber.class)
     private Long quantity;
     
 }
