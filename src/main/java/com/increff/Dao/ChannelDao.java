@@ -21,8 +21,8 @@ public class ChannelDao extends AbstractDao {
             "select globalSkuId from ChannelListing c where channelId=:channelId and " + " " +
                     " clientId=:clientId and channelSkuId=:skuId";
     
-    private static String findChannelListingByChannelIdAndGlobalSkuId = "select c from ChannelListing c where channelId=:channelId and " + " " +
-            " clientId=:clientId and globalSkuId=:globalSkuId and channelSkuId=:skuId";
+    private static String findChannelListingByChannelIdAndGlobalSkuId = "select c from ChannelListing c where " +
+            "channelId=:channelId and clientId=:clientId and globalSkuId=:globalSkuId and channelSkuId=:skuId";
     
     public Optional<Channel> checkChannelExistOrNot(String channelName) {
         TypedQuery<Channel> query = getQuery(checkChannelNameExistOrNot, Channel.class);

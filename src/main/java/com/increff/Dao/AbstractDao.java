@@ -5,17 +5,17 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 public abstract class AbstractDao {
-
+    
     @PersistenceContext
     protected EntityManager em;
-
+    
     protected <T> T getSingle(TypedQuery<T> query) {
-        return query.getResultList().stream().findFirst().orElse(null);
+        return query.getResultStream().findFirst().orElse(null);
     }
-
+    
     protected <T> TypedQuery<T> getQuery(String jpql, Class<T> clazz) {
         return em.createQuery(jpql, clazz);
     }
-
-
+    
+    
 }

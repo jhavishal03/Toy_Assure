@@ -4,7 +4,6 @@ import com.increff.Pojo.Order;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
 
 @Repository
 public class OrderDao extends AbstractDao {
@@ -14,7 +13,7 @@ public class OrderDao extends AbstractDao {
     
     private static String checkChannelOrderIdExist = "select count(o) from Order o where channelOrderId=:chnOId  ";
     
-    @Transactional
+    
     public Order addOrder(Order order) {
         em.persist(order);
         return order;

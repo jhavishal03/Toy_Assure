@@ -15,7 +15,8 @@ public class ProductDao extends AbstractDao {
     private static String getGlobalIdByClientSkuIdAndClientId =
             "Select p from Product p where clientId=:id and clientSkuId=:skuId";
     
-    private static String checkProductExistByClientSkuAndClientId = "select p from Product p where clientId=:id and clientSkuId=:skuId";
+    private static String checkProductExistByClientSkuAndClientId = "select p from Product p where clientId=:id " +
+            "and clientSkuId=:skuId";
     private static String checkGlobalIdExistOrNot =
             "select globalSkuId from Product p";
     private static String findMrpByGlobalSkuId = "select mrp from Product where globalSkuId=:id";

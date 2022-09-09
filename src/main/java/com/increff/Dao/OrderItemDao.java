@@ -14,7 +14,7 @@ public class OrderItemDao extends AbstractDao {
     
     private static String findOrderItemsByOrderId = "select o from OrderItem o where orderId=:orderId";
     
-    @Transactional
+    
     public List<OrderItem> addOrderItems(List<OrderItem> orderItemList) {
         List<OrderItem> result = new ArrayList<>();
         for (OrderItem orderItem : orderItemList) {

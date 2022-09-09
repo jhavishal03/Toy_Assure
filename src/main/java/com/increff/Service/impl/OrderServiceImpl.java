@@ -74,8 +74,6 @@ public class OrderServiceImpl implements OrderService {
         if (isChannelOrderDuplicate(channelOrderId)) {
             throw new ApiGenericException("channel OrderId duplicate");
         }
-        //save order details
-//        Order ord=upsertOrder(customerId, clientId, channelOrderId, "INTERNAL", InvoiceType.SELF);
         Order order = orderDao.addOrder(upsertOrder(customer.get().getUserId(), client.get().getUserId(), channelOrderId, "INTERNAL", InvoiceType.SELF));
         result = upsertOrderItemDetailsInternal(client.get().getUserId(), order.getOrderId(), orders);
         return result;
@@ -105,48 +103,13 @@ public class OrderServiceImpl implements OrderService {
                 orderRequest.getChannelOrderId(), orderRequest.getChannelName(), InvoiceType.CHANNEL));
         result = upsertOrderItemDetailsExternal(orderRequest.getClientId(), order.getOrderId(),
                 channel.getChannelId(), orderRequest.getOrderItems());
+        
         if (CollectionUtils.isEmpty(result)) {
             throw new ApiGenericException("Order not created as All the provided SkuIds not present ");
         }
         return result;
     }
     
-    private boolean isChannelOrderDuplicate(String channelOrderId) {
-        
-        Long isChannelOrderIdExist = orderDao.checkChannelOrderIdExist(channelOrderId);
-        
-        return isChannelOrderIdExist == 1l ? true : false;
-    }
-    
-    private List<OrderItem> upsertOrderItemDetailsInternal(Long clientId, Long orderId, List<OrderItemCsvDto> orders) {
-        List<OrderItem> orderItemList = new ArrayList<>();
-        //for each product
-        for (OrderItemCsvDto order : orders) {
-            Product savedProduct = productDao.getProductByClientIdAndClientSkuId(clientId, order.getClientSkuId());
-            if (savedProduct == null) {
-                throw new ApiGenericException("Product not exists for order with SKuID", order.getClientSkuId());
-            }
-            orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(savedProduct.getGlobalSkuId()).
-                    orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(order.getSellingPricePerUnit())
-                    .allocatedQuantity(0l).fulfilledQuantity(0l).build());
-            
-        }
-        if (CollectionUtils.isEmpty(orderItemList)) {
-            throw new ApiGenericException("All the provided SkuIds not present");
-        }
-        orderItemDao.addOrderItems(orderItemList);
-        return orderItemList;
-    }
-    
-    
-    private Order upsertOrder(Long customerId, Long clientId, String channelOrderId, String channelname, InvoiceType type) {
-        Channel channel = channelService.getChannelByNameAndType(channelname, type);
-        
-        Order order = Order.builder().customerId(customerId).clientId(clientId)
-                .channelId(channel.getChannelId()).channelOrderId(channelOrderId).status(Status.CREATED).build();
-        
-        return order;
-    }
     
     @Override
     @Transactional(rollbackOn = ApiGenericException.class)
@@ -219,6 +182,7 @@ public class OrderServiceImpl implements OrderService {
         return orderItemList;
     }
     
+    
     private List<OrderItem> upsertOrderItemDetailsExternal(Long clientId, Long orderId, Long channelId, List<OrderItemCsvDto> orderItems) {
         List<OrderItem> orderItemList = new ArrayList<>();
         List<String> skuIdsNotPresent = new ArrayList<>();
@@ -227,10 +191,10 @@ public class OrderServiceImpl implements OrderService {
             if (globalSkuId == null) {
                 skuIdsNotPresent.add(order.getClientSkuId());
             } else {
-//                Double price = productDao.findMrpByGlobalSkuID(globalSkuId);
-//                order.setSellingPricePerUnit(price);÷
+                Double price = productDao.findMrpByGlobalSkuID(globalSkuId);
+                order.setSellingPricePerUnit(price);
                 orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(globalSkuId).
-                        orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(order.getSellingPricePerUnit())
+                        orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(price)
                         .allocatedQuantity(0l).fulfilledQuantity(0l).build());
             }
         }
@@ -240,10 +204,45 @@ public class OrderServiceImpl implements OrderService {
         if (skuIdsNotPresent.size() != 0) {
             logger.info("some of the Sku ids are not exist or channel listing not provided");
             throw new ApiGenericException("These Sku Ids Donot have channelListings for client", skuIdsNotPresent);
-            
         }
         return orderItemDao.addOrderItems(orderItemList);
         
+    }
+    
+    private List<OrderItem> upsertOrderItemDetailsInternal(Long clientId, Long orderId, List<OrderItemCsvDto> orders) {
+        List<OrderItem> orderItemList = new ArrayList<>();
+        //for each product
+        for (OrderItemCsvDto order : orders) {
+            Product savedProduct = productDao.getProductByClientIdAndClientSkuId(clientId, order.getClientSkuId());
+            if (savedProduct == null) {
+                throw new ApiGenericException("Product not exists for order with SKuID", order.getClientSkuId());
+            }
+            orderItemList.add(OrderItem.builder().orderId(orderId).globalSkuId(savedProduct.getGlobalSkuId()).
+                    orderedQuantity(order.getOrderedQuantity()).sellingPricePerUnit(order.getSellingPricePerUnit())
+                    .allocatedQuantity(0l).fulfilledQuantity(0l).build());
+            
+        }
+        if (CollectionUtils.isEmpty(orderItemList)) {
+            throw new ApiGenericException("All the provided SkuIds not present");
+        }
+        orderItemDao.addOrderItems(orderItemList);
+        return orderItemList;
+    }
+    
+    private Order upsertOrder(Long customerId, Long clientId, String channelOrderId, String channelname, InvoiceType type) {
+        Channel channel = channelService.getChannelByNameAndType(channelname, type);
+        
+        Order order = Order.builder().customerId(customerId).clientId(clientId)
+                .channelId(channel.getChannelId()).channelOrderId(channelOrderId).status(Status.CREATED).build();
+        
+        return order;
+    }
+    
+    private boolean isChannelOrderDuplicate(String channelOrderId) {
+        
+        Long isChannelOrderIdExist = orderDao.checkChannelOrderIdExist(channelOrderId);
+        
+        return isChannelOrderIdExist == 1l ? true : false;
     }
     
     private void checkCustomerAndClientValidation(String customerName, String clientName) {
