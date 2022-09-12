@@ -5,7 +5,7 @@ import com.increff.Constants.UserType;
 import com.increff.Dao.ChannelDao;
 import com.increff.Dao.ProductDao;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.ChannelListingCsv;
+import com.increff.Model.ChannelListingCsvForm;
 import com.increff.Pojo.Channel;
 import com.increff.Pojo.ChannelListing;
 import com.increff.Pojo.Product;
@@ -14,8 +14,8 @@ import com.increff.Service.ChannelService;
 import com.increff.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,8 +49,8 @@ public class ChannelServiceImpl implements ChannelService {
     }
     
     @Override
-    @Transactional(rollbackOn = ApiGenericException.class)
-    public List<ChannelListing> addChannelListings(String clientName, String channelName, List<ChannelListingCsv> channels) {
+    @Transactional
+    public List<ChannelListing> addChannelListings(String clientName, String channelName, List<ChannelListingCsvForm> channels) {
         
         List<ChannelListing> channelListingsList = new ArrayList<>();
         Optional<User> savedUser = userService.getUserByNameAndType(clientName, UserType.CLIENT);
@@ -63,7 +63,7 @@ public class ChannelServiceImpl implements ChannelService {
         }
         Long clientId = savedUser.get().getUserId();
         Long channelId = savedChannel.get().getChannelId();
-        for (ChannelListingCsv channel : channels) {
+        for (ChannelListingCsvForm channel : channels) {
             Long channelSkuIdPresnt = this.getGlobalSkuIDByClientIdAndChannelIdAndSkuId(clientId, channelId, channel.getChannelSkuId());
             if (channelSkuIdPresnt != null) {
                 throw new ApiGenericException("ChannelSkuId " + channel.getChannelSkuId() + " already in use for client " + clientName);

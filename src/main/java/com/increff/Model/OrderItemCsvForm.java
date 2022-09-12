@@ -4,7 +4,7 @@ import com.increff.Util.MustAValidNumber;
 import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.validators.PreAssignmentValidator;
 
-public class OrderItemCsvDto {
+public class OrderItemCsvForm {
     @CsvBindByPosition(position = 0, required = true)
     private String clientSkuId;
     @CsvBindByPosition(position = 1, required = true)
@@ -14,7 +14,7 @@ public class OrderItemCsvDto {
     @PreAssignmentValidator(validator = MustAValidNumber.class)
     private Double sellingPricePerUnit;
     
-    public OrderItemCsvDto() {
+    public OrderItemCsvForm() {
     }
     
     public String getClientSkuId() {

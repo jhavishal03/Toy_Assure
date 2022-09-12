@@ -2,7 +2,7 @@ package com.increff.Dto;
 
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.ChannelForm;
-import com.increff.Model.ChannelListingCsv;
+import com.increff.Model.ChannelListingCsvForm;
 import com.increff.Pojo.Channel;
 import com.increff.Pojo.ChannelListing;
 import com.increff.Service.ChannelService;
@@ -29,9 +29,9 @@ public class ChannelDto {
     }
     
     public List<ChannelListing> addChannelListingsDto(String clientName, String channelName, MultipartFile file) {
-        List<ChannelListingCsv> channelList = null;
+        List<ChannelListingCsvForm> channelList = null;
         try {
-            channelList = CSVParseUtil.parseCSV(file.getBytes(), ChannelListingCsv.class);
+            channelList = CSVParseUtil.parseCSV(file.getBytes(), ChannelListingCsvForm.class);
 //            channelList = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(file.getBytes())))
 //                    .withType(ChannelListingCsv.class).withSkipLines(1).build().parse();
         } catch (IOException e) {

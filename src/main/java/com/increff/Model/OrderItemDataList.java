@@ -17,7 +17,7 @@ public class OrderItemDataList {
     private String clientName;
     private Long totalQuantity;
     private Long totalAmount;
-    private List<OrderItemsXmlDto> orderItems;
+    private List<OrderItemsXmlForm> orderItems;
     
     public OrderItemDataList() {
     }

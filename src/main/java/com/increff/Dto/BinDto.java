@@ -1,7 +1,7 @@
 package com.increff.Dto;
 
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.BinSkuDto;
+import com.increff.Model.BinSkuForm;
 import com.increff.Model.Converter.BinConverter;
 import com.increff.Pojo.BinSku;
 import com.increff.Service.BinService;
@@ -29,9 +29,9 @@ public class BinDto {
     }
     
     public List<BinSku> uploadBinData(Long clientId, MultipartFile file) {
-        List<BinSkuDto> binData = null;
+        List<BinSkuForm> binData = null;
         try {
-            binData = CSVParseUtil.parseCSV(file.getBytes(), BinSkuDto.class);
+            binData = CSVParseUtil.parseCSV(file.getBytes(), BinSkuForm.class);
 
 //             binData = new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(file.getBytes())))
 //                    .withType(BinSkuDto.class).withSkipLines(1).withThrowExceptions(false).build().parse();

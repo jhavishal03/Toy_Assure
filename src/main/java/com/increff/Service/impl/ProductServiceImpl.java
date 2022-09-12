@@ -11,8 +11,8 @@ import com.increff.Service.UserService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductConverter productConverter;
     
     @Override
-    @Transactional(rollbackOn = ApiGenericException.class)
+    @Transactional
     public List<Product> uploadProductDetailsForClient(Long clientId, List<Product> products) {
         Optional<User> user = Optional.ofNullable(userService.findUserById(clientId));
         if (!user.isPresent()) {

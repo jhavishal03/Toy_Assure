@@ -1,10 +1,10 @@
 package com.increff.Model;
 
-public class ChannelListingRequestDto {
+public class ChannelListingRequestForm {
     private String channelName;
     private String clientName;
     
-    public ChannelListingRequestDto() {
+    public ChannelListingRequestForm() {
     }
     
     public String getChannelName() {

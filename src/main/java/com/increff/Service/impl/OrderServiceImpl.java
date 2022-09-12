@@ -8,8 +8,8 @@ import com.increff.Dao.OrderItemDao;
 import com.increff.Dao.ProductDao;
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.OrderAllocatedData;
-import com.increff.Model.OrderChannelRequestDto;
-import com.increff.Model.OrderItemCsvDto;
+import com.increff.Model.OrderChannelRequestForm;
+import com.increff.Model.OrderItemCsvForm;
 import com.increff.Pojo.*;
 import com.increff.Service.BinService;
 import com.increff.Service.ChannelService;
@@ -18,8 +18,9 @@ import com.increff.Service.UserService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +58,9 @@ public class OrderServiceImpl implements OrderService {
         this.invoiceService = invoiceService;
     }
     
-    @Transactional(rollbackOn = ApiGenericException.class)
+    @Transactional(rollbackFor = ApiGenericException.class)
     @Override
-    public List<OrderItem> createOrderInternalChannel(String customerName, String clientName, String channelOrderId, List<OrderItemCsvDto> orders) {
+    public List<OrderItem> createOrderInternalChannel(String customerName, String clientName, String channelOrderId, List<OrderItemCsvForm> orders) throws ApiGenericException {
         //checking whether customer exist or not
         List<OrderItem> result = null;
         Optional<User> customer = userService.getUserByNameAndType(customerName, UserType.CUSTOMER);
@@ -80,8 +81,8 @@ public class OrderServiceImpl implements OrderService {
     }
     
     @Override
-    @Transactional
-    public List<OrderItem> createOrderExternalChannel(OrderChannelRequestDto orderRequest) {
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public List<OrderItem> createOrderExternalChannel(OrderChannelRequestForm orderRequest) {
         List<OrderItem> result = null;
         //repetitive code  can be used in a method
         Optional<User> customer = Optional.ofNullable(userService.findUserById(orderRequest.getCustomerId()));
@@ -99,8 +100,10 @@ public class OrderServiceImpl implements OrderService {
         if (isChannelOrderDuplicate(orderRequest.getChannelOrderId())) {
             throw new ApiGenericException("channel OrderId duplicate");
         }
+        logger.info("Order adding");
         Order order = orderDao.addOrder(upsertOrder(orderRequest.getCustomerId(), orderRequest.getClientId(),
                 orderRequest.getChannelOrderId(), orderRequest.getChannelName(), InvoiceType.CHANNEL));
+        logger.info("order added ->" + order.toString());
         result = upsertOrderItemDetailsExternal(orderRequest.getClientId(), order.getOrderId(),
                 channel.getChannelId(), orderRequest.getOrderItems());
         
@@ -112,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
     
     
     @Override
-    @Transactional(rollbackOn = ApiGenericException.class)
+    @Transactional(rollbackFor = ApiGenericException.class)
     public OrderAllocatedData allocateOrderPerId(Long orderId) {
         Order order = orderDao.findOrderByOrderId(orderId);
         List<OrderItem> res = new ArrayList<>();
@@ -157,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
     }
     
     @Override
-    @Transactional(rollbackOn = ApiGenericException.class)
+    @Transactional(rollbackFor = ApiGenericException.class)
     public void generateFulfilledInvoice(Long orderId) throws URISyntaxException {
         Order order = orderDao.findOrderByOrderId(orderId);
         if (order == null) {
@@ -183,10 +186,10 @@ public class OrderServiceImpl implements OrderService {
     }
     
     
-    private List<OrderItem> upsertOrderItemDetailsExternal(Long clientId, Long orderId, Long channelId, List<OrderItemCsvDto> orderItems) {
+    private List<OrderItem> upsertOrderItemDetailsExternal(Long clientId, Long orderId, Long channelId, List<OrderItemCsvForm> orderItems) {
         List<OrderItem> orderItemList = new ArrayList<>();
         List<String> skuIdsNotPresent = new ArrayList<>();
-        for (OrderItemCsvDto order : orderItems) {
+        for (OrderItemCsvForm order : orderItems) {
             Long globalSkuId = channelService.getGlobalSkuIDByClientIdAndChannelIdAndSkuId(clientId, channelId, order.getClientSkuId());
             if (globalSkuId == null) {
                 skuIdsNotPresent.add(order.getClientSkuId());
@@ -205,14 +208,15 @@ public class OrderServiceImpl implements OrderService {
             logger.info("some of the Sku ids are not exist or channel listing not provided");
             throw new ApiGenericException("These Sku Ids Donot have channelListings for client", skuIdsNotPresent);
         }
+        logger.info("idhar nahi aaya");
         return orderItemDao.addOrderItems(orderItemList);
         
     }
     
-    private List<OrderItem> upsertOrderItemDetailsInternal(Long clientId, Long orderId, List<OrderItemCsvDto> orders) {
+    private List<OrderItem> upsertOrderItemDetailsInternal(Long clientId, Long orderId, List<OrderItemCsvForm> orders) {
         List<OrderItem> orderItemList = new ArrayList<>();
         //for each product
-        for (OrderItemCsvDto order : orders) {
+        for (OrderItemCsvForm order : orders) {
             Product savedProduct = productDao.getProductByClientIdAndClientSkuId(clientId, order.getClientSkuId());
             if (savedProduct == null) {
                 throw new ApiGenericException("Product not exists for order with SKuID", order.getClientSkuId());

@@ -2,7 +2,7 @@ package com.increff.controller;
 
 import com.increff.Dto.OrderDto;
 import com.increff.Model.OrderAllocatedData;
-import com.increff.Model.OrderChannelRequestDto;
+import com.increff.Model.OrderChannelRequestForm;
 import com.increff.Model.Response;
 import com.increff.Pojo.OrderItem;
 import com.increff.Service.OrderService;
@@ -42,7 +42,7 @@ public class OrderController {
     
     @ApiOperation(value = "Api to create order using external channel")
     @PostMapping("/order/channel/create-order")
-    public ResponseEntity<Response> createOrderChannel(@RequestBody @Valid OrderChannelRequestDto orderRequest) {
+    public ResponseEntity<Response> createOrderChannel(@RequestBody @Valid OrderChannelRequestForm orderRequest) {
         List<OrderItem> res = orderDto.createOrderExternalChannel(orderRequest);
         return new ResponseEntity<>(new Response("external order created", res), HttpStatus.OK);
     }
@@ -62,6 +62,7 @@ public class OrderController {
         
     }
     
+    @ApiOperation(value = "Api to fulfil order and generate PDF")
     @GetMapping("/order/{orderId}/fulfill-order")
     public ResponseEntity<Response> generateInvoice(@PathVariable("orderId") @Min(0) Long orderId) throws URISyntaxException {
         orderService.generateFulfilledInvoice(orderId);

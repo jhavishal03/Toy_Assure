@@ -2,8 +2,8 @@ package com.increff.Dto;
 
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.OrderAllocatedData;
-import com.increff.Model.OrderChannelRequestDto;
-import com.increff.Model.OrderItemCsvDto;
+import com.increff.Model.OrderChannelRequestForm;
+import com.increff.Model.OrderItemCsvForm;
 import com.increff.Pojo.OrderItem;
 import com.increff.Service.OrderService;
 import com.increff.Util.CSVParseUtil;
@@ -24,9 +24,9 @@ public class OrderDto {
     private OrderService orderService;
     
     public List<OrderItem> createOrderInternalChannel(String customerName, String clientName, String channelOrderId, MultipartFile orderItems) {
-        List<OrderItemCsvDto> orders = null;
+        List<OrderItemCsvForm> orders = null;
         try {
-            orders = CSVParseUtil.parseCSV(orderItems.getBytes(), OrderItemCsvDto.class);
+            orders = CSVParseUtil.parseCSV(orderItems.getBytes(), OrderItemCsvForm.class);
 //                    new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(orderItems.getBytes())))
 //                    .withType(OrderItemCsvDto.class).withSkipLines(1).build().parse();
         } catch (IOException e) {
@@ -37,13 +37,13 @@ public class OrderDto {
                 clientName.trim().toLowerCase(), channelOrderId.trim().toLowerCase(), orders);
     }
     
-    public List<OrderItem> createOrderExternalChannel(OrderChannelRequestDto orderRequest) {
+    public List<OrderItem> createOrderExternalChannel(OrderChannelRequestForm orderRequest) {
         this.isOrderItemsApplicable(orderRequest.getOrderItems());
         
         return orderService.createOrderExternalChannel(normalizeData(orderRequest));
     }
     
-    private OrderChannelRequestDto normalizeData(OrderChannelRequestDto orderRequest) {
+    private OrderChannelRequestForm normalizeData(OrderChannelRequestForm orderRequest) {
         orderRequest.setChannelOrderId(orderRequest.getChannelOrderId().trim().toLowerCase());
         orderRequest.setChannelName(orderRequest.getChannelName().trim().toLowerCase());
         return orderRequest;
@@ -57,7 +57,7 @@ public class OrderDto {
         return orderService.getOrderDetailsByOrderId(orderId);
     }
     
-    private void isOrderItemsApplicable(List<OrderItemCsvDto> orders) {
+    private void isOrderItemsApplicable(List<OrderItemCsvForm> orders) {
         if (CollectionUtils.isEmpty(orders)) {
             throw new ApiGenericException("Order Items should not be empty ");
         }

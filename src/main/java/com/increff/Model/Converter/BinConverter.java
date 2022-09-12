@@ -1,6 +1,6 @@
 package com.increff.Model.Converter;
 
-import com.increff.Model.BinSkuDto;
+import com.increff.Model.BinSkuForm;
 import com.increff.Pojo.BinSku;
 import org.springframework.stereotype.Component;
 
@@ -10,9 +10,9 @@ import java.util.List;
 @Component
 public class BinConverter {
     
-    public List<BinSku> convertBinSkuDtoToBin(List<BinSkuDto> binSkuDtos) {
+    public List<BinSku> convertBinSkuDtoToBin(List<BinSkuForm> binSkuForms) {
         List<BinSku> result = new ArrayList<>();
-        for (BinSkuDto bin : binSkuDtos) {
+        for (BinSkuForm bin : binSkuForms) {
             result.add(
                     BinSku.builder().binId(bin.getBinId()).
                             quantity(bin.getQuantity()).build());

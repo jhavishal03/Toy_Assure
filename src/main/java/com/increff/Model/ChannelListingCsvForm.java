@@ -2,13 +2,13 @@ package com.increff.Model;
 
 import com.opencsv.bean.CsvBindByPosition;
 
-public class ChannelListingCsv {
+public class ChannelListingCsvForm {
     @CsvBindByPosition(position = 0, required = true)
     private String channelSkuId;
     @CsvBindByPosition(position = 1, required = true)
     private String clientSkuId;
     
-    public ChannelListingCsv() {
+    public ChannelListingCsvForm() {
     }
     
     public String getChannelSkuId() {

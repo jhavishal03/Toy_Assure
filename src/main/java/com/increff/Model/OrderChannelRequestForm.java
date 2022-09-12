@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderChannelRequestDto {
+public class OrderChannelRequestForm {
     @NotEmpty
     private String channelName;
     @NotNull
@@ -23,7 +23,7 @@ public class OrderChannelRequestDto {
     @NotEmpty
     private String channelOrderId;
     @NotNull
-    private List<OrderItemCsvDto> orderItems;
+    private List<OrderItemCsvForm> orderItems;
     
     
     public String getChannelName() {
@@ -58,11 +58,11 @@ public class OrderChannelRequestDto {
         this.channelOrderId = channelOrderId;
     }
     
-    public List<OrderItemCsvDto> getOrderItems() {
+    public List<OrderItemCsvForm> getOrderItems() {
         return orderItems;
     }
     
-    public void setOrderItems(List<OrderItemCsvDto> orderItems) {
+    public void setOrderItems(List<OrderItemCsvForm> orderItems) {
         this.orderItems = orderItems;
     }
 }

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItemsXmlDto {
+public class OrderItemsXmlForm {
     private String skuId;
     private String productName;
     private Long quantity;

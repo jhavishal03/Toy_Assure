@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BinSkuDto {
+public class BinSkuForm {
     @CsvBindByPosition(position = 0, required = true)
     @PreAssignmentValidator(validator = MustAValidNumber.class)
     private Long binId;

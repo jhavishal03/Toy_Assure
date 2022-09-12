@@ -2,7 +2,7 @@ package com.increff.Service.impl;
 
 import com.increff.Dao.BinDao;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.BinSkuDto;
+import com.increff.Model.BinSkuForm;
 import com.increff.Model.Converter.BinConverter;
 import com.increff.Pojo.BinSku;
 import com.increff.Pojo.Inventory;
@@ -36,8 +36,8 @@ public class BinServiceImpl implements BinService {
     }
     
     @Override
-    @Transactional(rollbackOn = ApiGenericException.class)
-    public List<BinSku> uploadBinData(Long clientId, List<BinSkuDto> binSkus) {
+    @Transactional
+    public List<BinSku> uploadBinData(Long clientId, List<BinSkuForm> binSkus) {
         List<Long> availableBins = binDao.getAllBinIds();
         Set<BinSku> entitiesToBeNewlyAdded = new HashSet<>();
         List<BinSku> result = new ArrayList<>();
@@ -46,7 +46,7 @@ public class BinServiceImpl implements BinService {
         if (binIds.size() != 0) {
             throw new ApiGenericException("Some of the Bins Not exist in system ", binIds);
         }
-        for (BinSkuDto binDto : binSkus) {
+        for (BinSkuForm binDto : binSkus) {
             Long changeInProductQuantity = 0L;
             Product product = productService.findProductByClientIdAndSkuId(clientId, binDto.getClientSkuId());
             Long globalSku = product.getGlobalSkuId();
