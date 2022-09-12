@@ -1,4 +1,4 @@
-package com.increff.Model.Converter;
+package com.increff.Model.Helper;
 
 import com.increff.Model.BinSkuForm;
 import com.increff.Pojo.BinSku;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class BinConverter {
+public class BinHelper {
     
     public List<BinSku> convertBinSkuDtoToBin(List<BinSkuForm> binSkuForms) {
         List<BinSku> result = new ArrayList<>();

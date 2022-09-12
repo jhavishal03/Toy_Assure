@@ -16,7 +16,7 @@ public class OrderChannelRequestForm {
     @NotEmpty
     private String channelName;
     @NotNull
-    @Min(0)
+    @Min(value = 0, message = "client Id should be greater Than 0")
     private Long clientId;
     @NotNull
     private Long customerId;

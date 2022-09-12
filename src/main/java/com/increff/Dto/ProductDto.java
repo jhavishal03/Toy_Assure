@@ -1,7 +1,7 @@
 package com.increff.Dto;
 
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.Converter.ProductConverter;
+import com.increff.Model.Helper.ProductHelper;
 import com.increff.Model.ProductForm;
 import com.increff.Pojo.Product;
 import com.increff.Service.ProductService;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ProductDto {
     
     @Autowired
-    private ProductConverter productConverter;
+    private ProductHelper productHelper;
     @Autowired
     private ProductService productService;
     
@@ -39,7 +39,7 @@ public class ProductDto {
         if (duplicateIds.size() != 0) {
             throw new ApiGenericException("Duplicate Sku present in CSV file with sku-> " + duplicateIds);
         }
-        List<Product> products = productConverter.productDtoToProductBulk(clientId, productForms);
+        List<Product> products = productHelper.productDtoToProductBulk(clientId, productForms);
         
         return productService.uploadProductDetailsForClient(clientId, products);
     }

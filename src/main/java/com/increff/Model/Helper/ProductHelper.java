@@ -1,4 +1,4 @@
-package com.increff.Model.Converter;
+package com.increff.Model.Helper;
 
 import com.increff.Model.ProductForm;
 import com.increff.Pojo.Product;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ProductConverter {
+public class ProductHelper {
     public List<Product> productDtoToProductBulk(Long clientId, List<ProductForm> productDto) {
         List<Product> products = new ArrayList<>();
         for (ProductForm prd : productDto) {

@@ -49,14 +49,14 @@ public class OrderController {
     
     @ApiOperation(value = "Api to allocate Order by passing order Id")
     @PostMapping("/order/{orderId}/allocate-orders")
-    public ResponseEntity<Response> allocateOrder(@PathVariable("orderId") @Min(0) Long orderId) {
+    public ResponseEntity<Response> allocateOrder(@PathVariable("orderId") @Min(value = 0, message = "Order Id should be greater Than 0") Long orderId) {
         Response response = null;
         OrderAllocatedData res = orderDto.allocateOrderPerId(orderId);
         
-        if (res.isAllocated()) {
-            response = new Response("Order allocated", res);
+        if (res.isAllocated() == true) {
+            response = new Response("Order allocated", res.getOrderItems());
         } else {
-            response = new Response("order Partially allocated", res);
+            response = new Response("order Partially allocated", res.getOrderItems());
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
         
@@ -64,7 +64,8 @@ public class OrderController {
     
     @ApiOperation(value = "Api to fulfil order and generate PDF")
     @GetMapping("/order/{orderId}/fulfill-order")
-    public ResponseEntity<Response> generateInvoice(@PathVariable("orderId") @Min(0) Long orderId) throws URISyntaxException {
+    public ResponseEntity<Response> generateInvoice(@PathVariable("orderId")
+                                                    @Min(value = 0, message = "Order Id should be greater Than 0") Long orderId) throws URISyntaxException {
         orderService.generateFulfilledInvoice(orderId);
         return new ResponseEntity<>(new Response<>("Pdf created", ""), HttpStatus.CREATED);
     }

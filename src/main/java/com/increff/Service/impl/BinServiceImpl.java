@@ -3,7 +3,7 @@ package com.increff.Service.impl;
 import com.increff.Dao.BinDao;
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.BinSkuForm;
-import com.increff.Model.Converter.BinConverter;
+import com.increff.Model.Helper.BinHelper;
 import com.increff.Pojo.BinSku;
 import com.increff.Pojo.Inventory;
 import com.increff.Pojo.Product;
@@ -22,7 +22,7 @@ public class BinServiceImpl implements BinService {
     private BinDao binDao;
     
     @Autowired
-    private BinConverter binConverter;
+    private BinHelper binConverter;
     
     @Autowired
     private ProductService productService;
@@ -95,6 +95,9 @@ public class BinServiceImpl implements BinService {
             quantityToBeRemoved -= quantity;
             bin.setQuantity(bin.getQuantity() - quantity);
             binsToBeUpdated.add(bin);
+        }
+        if (quantityToBeRemoved > 0) {
+            throw new ApiGenericException("Sufficient quantity of products not exist in Bins , Data Mismatch");
         }
     }
 }

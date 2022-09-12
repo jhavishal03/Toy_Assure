@@ -153,9 +153,9 @@ public class OrderServiceImpl implements OrderService {
         if (isOrderAllocated == true) {
             order.setStatus(Status.ALLOCATED);
             orderDao.addOrder(order);
-            return new OrderAllocatedData(false, res);
+            return new OrderAllocatedData(true, res);
         }
-        return new OrderAllocatedData(true, res);
+        return new OrderAllocatedData(false, res);
         
     }
     
@@ -177,11 +177,14 @@ public class OrderServiceImpl implements OrderService {
     
     @Override
     public List<OrderItem> getOrderDetailsByOrderId(Long orderId) {
+        logger.info("getOrderDetailsBy Id started");
         Order order = orderDao.findOrderByOrderId(orderId);
         if (order == null) {
             throw new ApiGenericException("order doesn't exist or created");
         }
         List<OrderItem> orderItemList = orderItemDao.fetchOrderItemByOrderId(orderId);
+        logger.info("Order details are" + orderItemList);
+        logger.info("getOrderDetailsBy Id End");
         return orderItemList;
     }
     

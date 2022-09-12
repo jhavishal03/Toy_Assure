@@ -2,7 +2,7 @@ package com.increff.Dto;
 
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.BinSkuForm;
-import com.increff.Model.Converter.BinConverter;
+import com.increff.Model.Helper.BinHelper;
 import com.increff.Pojo.BinSku;
 import com.increff.Service.BinService;
 import com.increff.Util.CSVParseUtil;
@@ -22,7 +22,7 @@ public class BinDto {
     private BinService binService;
     
     @Autowired
-    private BinConverter binConverter;
+    private BinHelper binConverter;
     
     public List<Long> addBinsToSystem(int num) {
         return binService.addBinToSystem(num);

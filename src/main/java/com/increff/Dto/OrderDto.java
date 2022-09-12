@@ -27,8 +27,6 @@ public class OrderDto {
         List<OrderItemCsvForm> orders = null;
         try {
             orders = CSVParseUtil.parseCSV(orderItems.getBytes(), OrderItemCsvForm.class);
-//                    new CsvToBeanBuilder(new InputStreamReader(new ByteArrayInputStream(orderItems.getBytes())))
-//                    .withType(OrderItemCsvDto.class).withSkipLines(1).build().parse();
         } catch (IOException e) {
             throw new ApiGenericException("CSV IO exception while reading");
         }

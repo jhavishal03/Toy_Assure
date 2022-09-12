@@ -2,7 +2,7 @@ package com.increff.Service.impl;
 
 import com.increff.Dao.ProductDao;
 import com.increff.Exception.ApiGenericException;
-import com.increff.Model.Converter.ProductConverter;
+import com.increff.Model.Helper.ProductHelper;
 import com.increff.Model.ProductForm;
 import com.increff.Pojo.Product;
 import com.increff.Pojo.User;
@@ -27,7 +27,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductDao productDao;
     
     @Autowired
-    private ProductConverter productConverter;
+    private ProductHelper productHelper;
     
     @Override
     @Transactional
@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ApiGenericException("Given user is not client");
         }
         List<String> savedClientSkuIds = productDao.getClientSkuIdByClientId(clientId);
-        List<Product> products = productConverter.productDtoToProductBulk(clientId, productDtoList);
+        List<Product> products = productHelper.productDtoToProductBulk(clientId, productDtoList);
         return upsertClientSkuIds(clientId, savedClientSkuIds, products);
         
     }
@@ -83,8 +83,8 @@ public class ProductServiceImpl implements ProductService {
     public Product findProductByClientIdAndSkuId(Long clientId, String clientSkuId) {
         Product product = productDao.getProductByClientIdAndClientSkuId(clientId, clientSkuId);
         if (product == null) {
-            throw new ApiGenericException("Product not exist in system for clientId " + clientId + "" +
-                    " and SkuId " + clientSkuId);
+            throw new ApiGenericException("Product not exist in system with SkuId " + clientSkuId
+                    + " For current client");
         }
         return product;
     }
