@@ -47,6 +47,7 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
     
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<?> handleGenericException(Exception ex, WebRequest request) {
+        ex.printStackTrace();
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
     

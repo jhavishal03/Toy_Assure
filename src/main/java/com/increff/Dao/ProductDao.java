@@ -1,6 +1,6 @@
 package com.increff.Dao;
 
-import com.increff.Pojo.Product;
+import com.increff.Pojo.ProductPojo;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -11,17 +11,17 @@ import java.util.List;
 @Repository
 public class ProductDao extends AbstractDao {
     
-    private static String selectSkuByClientId = "select p.clientSkuId from Product p where clientId=:id";
+    private static String selectSkuByClientId = "select p.clientSkuId from ProductPojo p where clientId=:id";
     private static String getGlobalIdByClientSkuIdAndClientId =
-            "Select p from Product p where clientId=:id and clientSkuId=:skuId";
+            "Select p from ProductPojo p where clientId=:id and clientSkuId=:skuId";
     
-    private static String checkProductExistByClientSkuAndClientId = "select p from Product p where clientId=:id " +
+    private static String checkProductExistByClientSkuAndClientId = "select p from ProductPojo p where clientId=:id " +
             "and clientSkuId=:skuId";
     private static String checkGlobalIdExistOrNot =
-            "select globalSkuId from Product p";
-    private static String findMrpByGlobalSkuId = "select mrp from Product where globalSkuId=:id";
+            "select globalSkuId from ProductPojo p";
+    private static String findMrpByGlobalSkuId = "select mrp from ProductPojo where globalSkuId=:id";
     
-    private static String findProductByGlobalSkuId = "select p from Product p where globalSkuId=:id";
+    private static String findProductByGlobalSkuId = "select p from ProductPojo p where globalSkuId=:id";
     
     
     public List<String> getClientSkuIdByClientId(long id) {
@@ -30,18 +30,18 @@ public class ProductDao extends AbstractDao {
         return query.getResultList();
     }
     
-    public Product findProductByGlobalSkuId(Long id) {
-        TypedQuery<Product> query = getQuery(findProductByGlobalSkuId, Product.class);
+    public ProductPojo findProductByGlobalSkuId(Long id) {
+        TypedQuery<ProductPojo> query = getQuery(findProductByGlobalSkuId, ProductPojo.class);
         query.setParameter("id", id);
         return getSingle(query);
     }
     
     @Transactional
-    public List<Product> addProductsData(List<Product> products) {
-        List<Product> res = new ArrayList<>();
-        for (Product product : products) {
-            em.persist(product);
-            res.add(product);
+    public List<ProductPojo> addProductsData(List<ProductPojo> productPojos) {
+        List<ProductPojo> res = new ArrayList<>();
+        for (ProductPojo productPojo : productPojos) {
+            em.persist(productPojo);
+            res.add(productPojo);
         }
         return res;
     }
@@ -58,24 +58,24 @@ public class ProductDao extends AbstractDao {
         return query.getResultList();
     }
     
-    public Product getProductByClientIdAndClientSkuId(Long id, String skuId) {
-        TypedQuery<Product> query = getQuery(getGlobalIdByClientSkuIdAndClientId, Product.class);
+    public ProductPojo getProductByClientIdAndClientSkuId(Long id, String skuId) {
+        TypedQuery<ProductPojo> query = getQuery(getGlobalIdByClientSkuIdAndClientId, ProductPojo.class);
         query.setParameter("id", id);
         query.setParameter("skuId", skuId);
         return getSingle(query);
     }
     
-    public Product checkProductExistByClientIdAndClientSkuId(Long id, String skuId) {
-        TypedQuery<Product> query = getQuery(checkProductExistByClientSkuAndClientId, Product.class);
+    public ProductPojo checkProductExistByClientIdAndClientSkuId(Long id, String skuId) {
+        TypedQuery<ProductPojo> query = getQuery(checkProductExistByClientSkuAndClientId, ProductPojo.class);
         query.setParameter("id", id);
         query.setParameter("skuId", skuId);
         return getSingle(query);
     }
     
     @Transactional
-    public Product updateProductsDataForClient(Product product) {
-        em.merge(product);
-        return product;
+    public ProductPojo updateProductsDataForClient(ProductPojo productPojo) {
+        em.merge(productPojo);
+        return productPojo;
     }
     
 }

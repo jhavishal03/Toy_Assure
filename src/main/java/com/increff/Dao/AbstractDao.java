@@ -10,7 +10,7 @@ public abstract class AbstractDao {
     protected EntityManager em;
     
     protected <T> T getSingle(TypedQuery<T> query) {
-        return query.getResultStream().findFirst().orElse(null);
+        return query.getResultList().stream().findFirst().orElse(null);
     }
     
     protected <T> TypedQuery<T> getQuery(String jpql, Class<T> clazz) {

@@ -1,6 +1,6 @@
 package com.increff.Model;
 
-import com.increff.Pojo.OrderItem;
+import com.increff.Pojo.OrderItemPojo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,5 +14,5 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderAllocatedData {
     boolean isAllocated;
-    List<OrderItem> orderItems;
+    List<OrderItemPojo> orderItemPojos;
 }

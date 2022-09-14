@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "assure_Channel")
+@Table(name = "assure_Channel", uniqueConstraints = @UniqueConstraint(
+        columnNames = {"name"}
+))
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Channel extends BaseModel {
+public class ChannelPojo extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long channelId;

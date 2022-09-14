@@ -1,6 +1,6 @@
 package com.increff.Dao;
 
-import com.increff.Pojo.OrderItem;
+import com.increff.Pojo.OrderItemPojo;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -12,27 +12,32 @@ import java.util.List;
 public class OrderItemDao extends AbstractDao {
     
     
-    private static String findOrderItemsByOrderId = "select o from OrderItem o where orderId=:orderId";
+    private static String findOrderItemsByOrderId = "select o from OrderItemPojo o where orderId=:orderId";
     
     
-    public List<OrderItem> addOrderItems(List<OrderItem> orderItemList) {
-        List<OrderItem> result = new ArrayList<>();
-        for (OrderItem orderItem : orderItemList) {
-            em.persist(orderItem);
-            result.add(orderItem);
+    public List<OrderItemPojo> addOrderItems(List<OrderItemPojo> orderItemPojoList) {
+        List<OrderItemPojo> result = new ArrayList<>();
+        for (OrderItemPojo orderItemPojo : orderItemPojoList) {
+            em.persist(orderItemPojo);
+            result.add(orderItemPojo);
         }
         return result;
     }
     
     @Transactional
-    public OrderItem addSingleOrderItem(OrderItem order) {
+    public OrderItemPojo addSingleOrderItem(OrderItemPojo order) {
         em.persist(order);
         return order;
+    }
+    
+    @Transactional
+    public OrderItemPojo updateSingleOrderItem(OrderItemPojo order) {
+        return em.merge(order);
         
     }
     
-    public List<OrderItem> fetchOrderItemByOrderId(Long orderId) {
-        TypedQuery<OrderItem> query = getQuery(findOrderItemsByOrderId, OrderItem.class);
+    public List<OrderItemPojo> fetchOrderItemByOrderId(Long orderId) {
+        TypedQuery<OrderItemPojo> query = getQuery(findOrderItemsByOrderId, OrderItemPojo.class);
         query.setParameter("orderId", orderId);
         return query.getResultList();
     }

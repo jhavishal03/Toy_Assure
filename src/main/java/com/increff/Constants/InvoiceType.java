@@ -1,12 +1,14 @@
 package com.increff.Constants;
 
 public enum InvoiceType {
-    CHANNEL("Channel"),SELF("Self");
+    CHANNEL("ChannelPojo"), SELF("Self");
     private String value;
+    
     InvoiceType(String value) {
-        this.value=value;
+        this.value = value;
     }
-    public String getValue(){
+    
+    public String getValue() {
         return this.value;
     }
 }

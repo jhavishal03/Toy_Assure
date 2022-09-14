@@ -1,7 +1,7 @@
 package com.increff.Dao;
 
-import com.increff.Pojo.Bin;
-import com.increff.Pojo.BinSku;
+import com.increff.Pojo.BinPojo;
+import com.increff.Pojo.BinSkuPojo;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -13,25 +13,26 @@ import java.util.Set;
 @Repository
 public class BinDao extends AbstractDao {
     
-    private static String getAlBinIds = "select b.binId from Bin b";
-    private static String getBinEntityDataBySkuIDAndBinID = "select bs from BinSku bs where globalSkuId=:skuId and binId=:binId ";
+    private static String getAlBinIds = "select b.binId from BinPojo b";
+    private static String getBinEntityDataBySkuIDAndBinID = "select bs from BinSkuPojo bs where " +
+            "globalSkuId=:skuId and binId=:binId ";
     
     private static String findAllTheBinContainingProductByGlobalSku =
-            "select bs from BinSku bs  where globalSkuId=:skuId order by quantity desc";
+            "select bs from BinSkuPojo bs  where globalSkuId=:skuId order by quantity desc";
     
     @Transactional
-    public List<Long> addBinToSystem(int n) {
+    public List<Long> addBinToSystem(Long n) {
         List<Long> res = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            Bin bin = new Bin();
-            em.persist(bin);
-            res.add(bin.getBinId());
+            BinPojo binPojo = new BinPojo();
+            em.persist(binPojo);
+            res.add(binPojo.getBinId());
         }
         return res;
     }
     
-    public BinSku getBinEntityByBinIdAndSkuId(Long skuId, Long binId) {
-        TypedQuery<BinSku> query = getQuery(getBinEntityDataBySkuIDAndBinID, BinSku.class);
+    public BinSkuPojo getBinEntityByBinIdAndSkuId(Long skuId, Long binId) {
+        TypedQuery<BinSkuPojo> query = getQuery(getBinEntityDataBySkuIDAndBinID, BinSkuPojo.class);
         query.setParameter("skuId", skuId);
         query.setParameter("binId", binId);
         return getSingle(query);
@@ -43,16 +44,16 @@ public class BinDao extends AbstractDao {
         return query.getResultList();
     }
     
-    public List<BinSku> getAllBinsContainingProductBySku(Long skuId) {
-        TypedQuery<BinSku> query = getQuery(findAllTheBinContainingProductByGlobalSku, BinSku.class);
+    public List<BinSkuPojo> getAllBinsContainingProductBySku(Long skuId) {
+        TypedQuery<BinSkuPojo> query = getQuery(findAllTheBinContainingProductByGlobalSku, BinSkuPojo.class);
         query.setParameter("skuId", skuId);
         return query.getResultList();
     }
     
     @Transactional
-    public List<BinSku> uploadBinDataInventory(Set<BinSku> binSkus) {
-        List<BinSku> result = new ArrayList<>();
-        for (BinSku bin : binSkus) {
+    public List<BinSkuPojo> uploadBinDataInventory(Set<BinSkuPojo> binSkusPojos) {
+        List<BinSkuPojo> result = new ArrayList<>();
+        for (BinSkuPojo bin : binSkusPojos) {
             em.persist(bin);
             result.add(bin);
         }

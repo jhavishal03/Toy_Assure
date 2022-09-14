@@ -1,6 +1,6 @@
 package com.increff.Dao;
 
-import com.increff.Pojo.Inventory;
+import com.increff.Pojo.InventoryPojo;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -10,22 +10,22 @@ import javax.transaction.Transactional;
 public class InventoryDao extends AbstractDao {
     
     
-    private static String getInventoryByGlobalSkuId = "select i from Inventory i where globalSkuId=:skuId";
+    private static String getInventoryByGlobalSkuId = "select i from InventoryPojo i where globalSkuId=:skuId";
     
-    public Inventory getInvetoryBySkuId(Long skuId) {
-        TypedQuery<Inventory> query = getQuery(getInventoryByGlobalSkuId, Inventory.class);
+    public InventoryPojo getInvetoryBySkuId(Long skuId) {
+        TypedQuery<InventoryPojo> query = getQuery(getInventoryByGlobalSkuId, InventoryPojo.class);
         query.setParameter("skuId", skuId);
         return getSingle(query);
     }
     
     @Transactional
-    public void addInventoryEntity(Inventory inventory) {
-        em.persist(inventory);
+    public void addInventoryEntity(InventoryPojo inventoryPojo) {
+        em.persist(inventoryPojo);
         
     }
     
     @Transactional
-    public Inventory updateInventoryEntity(Inventory inventory) {
-        return em.merge(inventory);
+    public InventoryPojo updateInventoryEntity(InventoryPojo inventoryPojo) {
+        return em.merge(inventoryPojo);
     }
 }

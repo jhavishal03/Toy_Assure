@@ -1,8 +1,8 @@
 package com.increff.Dao;
 
 import com.increff.Constants.InvoiceType;
-import com.increff.Pojo.Channel;
-import com.increff.Pojo.ChannelListing;
+import com.increff.Pojo.ChannelListingPojo;
+import com.increff.Pojo.ChannelPojo;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -13,32 +13,31 @@ import java.util.Optional;
 
 @Repository
 public class ChannelDao extends AbstractDao {
-    private static String checkChannelNameExistOrNot = "select c from Channel c where name=:channelName";
-    private static String getChannelIdByNameAndType = "select c from Channel c where name=:name and invoiceType=:type ";
+    private static String checkChannelNameExistOrNot = "select c from ChannelPojo c where name=:channelName";
+    private static String getChannelIdByNameAndType = "select c from ChannelPojo c where name=:name and invoiceType=:type ";
     
     
     private static String getGlobalIdByClientIdAndChannelSkuID =
-            "select globalSkuId from ChannelListing c where channelId=:channelId and " + " " +
+            "select globalSkuId from ChannelListingPojo c where channelId=:channelId and " + " " +
                     " clientId=:clientId and channelSkuId=:skuId";
     
-    private static String findChannelListingByChannelIdAndGlobalSkuId = "select c from ChannelListing c where " +
+    private static String findChannelListingByChannelIdAndGlobalSkuId = "select c from ChannelListingPojo c where " +
             "channelId=:channelId and clientId=:clientId and globalSkuId=:globalSkuId and channelSkuId=:skuId";
     
-    public Optional<Channel> checkChannelExistOrNot(String channelName) {
-        TypedQuery<Channel> query = getQuery(checkChannelNameExistOrNot, Channel.class);
+    public Optional<ChannelPojo> checkChannelExistOrNot(String channelName) {
+        TypedQuery<ChannelPojo> query = getQuery(checkChannelNameExistOrNot, ChannelPojo.class);
         query.setParameter("channelName", channelName);
         return query.getResultList().stream().findFirst();
     }
     
-    @Transactional
-    public Channel saveChannel(Channel channel) {
-        em.persist(channel);
-        return channel;
+    public ChannelPojo saveChannel(ChannelPojo channelPojo) {
+        em.persist(channelPojo);
+        return channelPojo;
     }
     
-    public ChannelListing findChannelListingBySkuIDByChannelIdAndSkuId(Long clientId, Long channelId, Long globalSkuId
+    public ChannelListingPojo findChannelListingBySkuIDByChannelIdAndSkuId(Long clientId, Long channelId, Long globalSkuId
             , String skuId) {
-        TypedQuery<ChannelListing> query = getQuery(findChannelListingByChannelIdAndGlobalSkuId, ChannelListing.class);
+        TypedQuery<ChannelListingPojo> query = getQuery(findChannelListingByChannelIdAndGlobalSkuId, ChannelListingPojo.class);
         query.setParameter("clientId", clientId);
         query.setParameter("channelId", channelId);
         query.setParameter("globalSkuId", globalSkuId);
@@ -46,8 +45,8 @@ public class ChannelDao extends AbstractDao {
         return getSingle(query);
     }
     
-    public Channel getChannelIdByNameAndType(String name, InvoiceType type) {
-        TypedQuery<Channel> query = getQuery(getChannelIdByNameAndType, Channel.class);
+    public ChannelPojo getChannelIdByNameAndType(String name, InvoiceType type) {
+        TypedQuery<ChannelPojo> query = getQuery(getChannelIdByNameAndType, ChannelPojo.class);
         query.setParameter("name", name);
         query.setParameter("type", type);
         return getSingle(query);
@@ -62,16 +61,16 @@ public class ChannelDao extends AbstractDao {
     }
     
     @Transactional
-    public List<ChannelListing> saveChannelsListing(List<ChannelListing> channelListings) {
-        List<ChannelListing> result = new ArrayList<>();
-        for (ChannelListing ch : channelListings) {
+    public List<ChannelListingPojo> saveChannelsListing(List<ChannelListingPojo> channelListingPojos) {
+        List<ChannelListingPojo> result = new ArrayList<>();
+        for (ChannelListingPojo ch : channelListingPojos) {
             em.persist(ch);
             result.add(ch);
         }
         return result;
     }
     
-    public ChannelListing addSingleChannelListing(ChannelListing obj) {
+    public ChannelListingPojo addSingleChannelListing(ChannelListingPojo obj) {
         em.persist(obj);
         return obj;
     }

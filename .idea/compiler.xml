@@ -11,5 +11,9 @@
         <module name="Toy_Assure" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Channel" target="1.7" />
+      <module name="Commons" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

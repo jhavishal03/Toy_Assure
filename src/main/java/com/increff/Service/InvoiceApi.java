@@ -1,15 +1,12 @@
-package com.increff.Service.impl;
+package com.increff.Service;
 
 import com.increff.Dao.OrderItemDao;
 import com.increff.Exception.ApiGenericException;
 import com.increff.Model.InvoiceData;
 import com.increff.Model.InvoiceItemData;
-import com.increff.Pojo.Order;
-import com.increff.Pojo.OrderItem;
-import com.increff.Pojo.Product;
-import com.increff.Service.InvoiceService;
-import com.increff.Service.ProductService;
-import com.increff.Service.UserService;
+import com.increff.Pojo.OrderItemPojo;
+import com.increff.Pojo.OrderPojo;
+import com.increff.Pojo.ProductPojo;
 import org.apache.fop.apps.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,27 +25,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class InvoiceServiceImpl implements InvoiceService {
+public class InvoiceApi {
     
     private static StringBuilder fileName;
-    ProductService productService;
+    ProductApi productApi;
     OrderItemDao orderItemDao;
-    private InventoryServiceImpl inventoryService;
+    private InventoryApi inventoryApi;
     
-    private UserService userService;
+    private UserApi userApi;
     
     @Autowired
-    public InvoiceServiceImpl(ProductService productService, OrderItemDao orderItemDao,
-                              InventoryServiceImpl inventoryService, UserService userService) {
-        this.productService = productService;
+    public InvoiceApi(ProductApi productApi, OrderItemDao orderItemDao,
+                      InventoryApi inventoryApi, UserApi userApi) {
+        this.productApi = productApi;
         this.orderItemDao = orderItemDao;
-        this.inventoryService = inventoryService;
-        this.userService = userService;
+        this.inventoryApi = inventoryApi;
+        this.userApi = userApi;
     }
     
-    public void generateInvoice(List<OrderItem> orderItems, Order order) throws URISyntaxException {
+    public void generateInvoice(List<OrderItemPojo> orderItemPojos, OrderPojo orderPojo) throws URISyntaxException {
         File xslFile = new File(Thread.currentThread().getContextClassLoader().getResource("Template.xsl").toURI());
-        String xmlInput = getXmlString(orderItems, order);
+        String xmlInput = getXmlString(orderItemPojos, orderPojo);
         try {
             createInvoicePdf(xmlInput, xslFile);
         } catch (Exception e) {
@@ -58,15 +55,15 @@ public class InvoiceServiceImpl implements InvoiceService {
         
     }
     
-    private String getXmlString(List<OrderItem> orderItems, Order order) {
-        String clientName = userService.findUserById(order.getClientId()).getName();
-        String customerName = userService.findUserById(order.getCustomerId()).getName();
-        fileName = new StringBuilder("Invoice_").append(clientName).append("_orderId_").append(order.getOrderId()).append(".pdf");
+    private String getXmlString(List<OrderItemPojo> orderItemPojos, OrderPojo orderPojo) {
+        String clientName = userApi.findUserById(orderPojo.getClientId()).getName();
+        String customerName = userApi.findUserById(orderPojo.getCustomerId()).getName();
+        fileName = new StringBuilder("Invoice_").append(clientName).append("_orderId_").append(orderPojo.getOrderId()).append(".pdf");
         InvoiceData invoiceData = InvoiceData.builder().
-                invoiceItemData(this.convertOrderItemToInvoiceOrderItem(orderItems)).customerName(customerName)
-                .invoiceNumber(order.getOrderId()).invoiceDate(new Timestamp(System.currentTimeMillis()).toString())
-                .channelOrderId(order.getChannelOrderId()).clientName(clientName).
-                invoiceTotal(orderItems.parallelStream().reduce(0.0, (result, orderItem) ->
+                invoiceItemData(this.convertOrderItemToInvoiceOrderItem(orderItemPojos)).customerName(customerName)
+                .invoiceNumber(orderPojo.getOrderId()).invoiceDate(new Timestamp(System.currentTimeMillis()).toString())
+                .channelOrderId(orderPojo.getChannelOrderId()).clientName(clientName).
+                invoiceTotal(orderItemPojos.parallelStream().reduce(0.0, (result, orderItem) ->
                         orderItem.getSellingPricePerUnit() * orderItem.getOrderedQuantity(), Double::sum
                 )).build();
         
@@ -84,21 +81,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         return stringWriter.toString();
     }
     
-    private List<InvoiceItemData> convertOrderItemToInvoiceOrderItem(List<OrderItem> orderItems) {
+    private List<InvoiceItemData> convertOrderItemToInvoiceOrderItem(List<OrderItemPojo> orderItemPojos) {
         List<InvoiceItemData> invoiceItemDataList = new ArrayList<InvoiceItemData>();
-        for (OrderItem orderItem : orderItems) {
-            Product product = productService.findProductByGlobalSkuID(orderItem.getGlobalSkuId());
+        for (OrderItemPojo orderItemPojo : orderItemPojos) {
+            ProductPojo productPojo = productApi.findProductByGlobalSkuID(orderItemPojo.getGlobalSkuId());
             InvoiceItemData invoiceItemData = InvoiceItemData.builder()
-                    .productName(product.getName()).clientSkuid(orderItem.getGlobalSkuId().toString())
-                    .sellingPricePerUnit(orderItem.getSellingPricePerUnit())
-                    .amount(orderItem.getSellingPricePerUnit() * orderItem.getAllocatedQuantity())
-                    .quantity(orderItem.getAllocatedQuantity()).build();
+                    .productName(productPojo.getName()).clientSkuid(orderItemPojo.getGlobalSkuId().toString())
+                    .sellingPricePerUnit(orderItemPojo.getSellingPricePerUnit())
+                    .amount(orderItemPojo.getSellingPricePerUnit() * orderItemPojo.getAllocatedQuantity())
+                    .quantity(orderItemPojo.getAllocatedQuantity()).build();
             
             invoiceItemDataList.add(invoiceItemData);
-            inventoryService.updateInventoryAfterFulfillment(orderItem.getGlobalSkuId(), orderItem.getAllocatedQuantity());
-            orderItem.setFulfilledQuantity(orderItem.getAllocatedQuantity());
-            orderItem.setAllocatedQuantity(0L);
-            orderItemDao.addSingleOrderItem(orderItem);
+            inventoryApi.updateInventoryAfterFulfillment(orderItemPojo.getGlobalSkuId(), orderItemPojo.getAllocatedQuantity());
+            orderItemPojo.setFulfilledQuantity(orderItemPojo.getAllocatedQuantity());
+            orderItemPojo.setAllocatedQuantity(0L);
+            orderItemDao.updateSingleOrderItem(orderItemPojo);
         }
         
         return invoiceItemDataList;

@@ -5,13 +5,15 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "assure_Product")
+@Table(name = "assure_Product", uniqueConstraints = @UniqueConstraint(
+        columnNames = {"clientId", "clientSkuId"}
+))
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class Product extends BaseModel {
+public class ProductPojo extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long globalSkuId;

@@ -6,13 +6,15 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "assure_BinSku")
+@Table(name = "assure_BinSku", uniqueConstraints = @UniqueConstraint(
+        columnNames = {"binId", "globalSkuId"}
+))
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class BinSku extends BaseModel {
+public class BinSkuPojo extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long binSkuId;

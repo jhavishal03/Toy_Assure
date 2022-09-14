@@ -4,13 +4,13 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "assure_Bin")
-public class Bin extends BaseModel {
+public class BinPojo extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long binId;
     
     
-    public Bin() {
+    public BinPojo() {
     }
     
     public Long getBinId() {

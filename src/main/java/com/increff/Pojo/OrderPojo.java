@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "assure_Order")
+@Table(name = "assure_Order", uniqueConstraints = @UniqueConstraint(
+        columnNames = {"channelOrderId"}
+))
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Order extends BaseModel {
+public class OrderPojo extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;

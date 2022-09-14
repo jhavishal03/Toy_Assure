@@ -3,8 +3,8 @@ package com.increff.controller;
 import com.increff.Dto.ChannelDto;
 import com.increff.Model.ChannelForm;
 import com.increff.Model.Response;
-import com.increff.Pojo.Channel;
-import com.increff.Pojo.ChannelListing;
+import com.increff.Pojo.ChannelListingPojo;
+import com.increff.Pojo.ChannelPojo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +29,11 @@ public class ChannelController {
         this.channelDto = channelDto;
     }
     
-    @ApiOperation(value = "Api to Create Channel ")
+    @ApiOperation(value = "Api to Create ChannelPojo ")
     @PostMapping("/create-channel")
     public ResponseEntity<Response> createChannel(@RequestBody @Valid ChannelForm channelForm) {
-        Channel channel = channelDto.addChannel(channelForm);
-        Response response = new Response("Channel created succesfully", channel);
+        ChannelPojo channelPojo = channelDto.addChannel(channelForm);
+        Response response = new Response("ChannelPojo created succesfully", channelPojo);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
     
@@ -41,9 +41,9 @@ public class ChannelController {
     @PostMapping("/add-channel-listings")
     public ResponseEntity<Response> createChannelListing(@RequestParam String channelName, @RequestParam String clientName,
                                                          @RequestBody MultipartFile channelListings) {
-        List<ChannelListing> res = new ArrayList<>();
+        List<ChannelListingPojo> res = new ArrayList<>();
         res = channelDto.addChannelListingsDto(clientName, channelName, channelListings);
-        Response response = new Response("Channel Listings updated successFully", res);
+        Response response = new Response("ChannelPojo Listings updated successFully", res);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
