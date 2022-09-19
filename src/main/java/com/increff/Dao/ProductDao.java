@@ -53,6 +53,11 @@ public class ProductDao extends AbstractDao {
         return getSingle(query);
     }
     
+    public ProductPojo addProductPojo(ProductPojo productPojo) {
+        em.persist(productPojo);
+        return productPojo;
+    }
+    
     public List<Long> getGlobalSkuIds() {
         TypedQuery<Long> query = getQuery(checkGlobalIdExistOrNot, Long.class);
         return query.getResultList();

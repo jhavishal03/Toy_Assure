@@ -2,6 +2,7 @@ package com.increff.controller;
 
 import com.increff.Dto.OrderDto;
 import com.increff.Model.OrderAllocatedData;
+import com.increff.Model.OrderChannelRequestForm;
 import com.increff.Model.Response;
 import com.increff.Pojo.OrderItemPojo;
 import com.increff.Service.OrderApi;
@@ -14,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -37,13 +39,14 @@ public class OrderController {
         Response response = new Response("Internal OrderPojo Created", res);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-//    @ApiOperation(value = "Api to create order using external channel")
-//    @PostMapping("/order/channel/create-order")
-//    public ResponseEntity<Response> createOrderChannel(@RequestBody @Valid OrderChannelRequestForm orderRequest) {
-//        List<OrderItemPojo> res = orderDto.createOrderExternalChannel(orderRequest);
-//        return new ResponseEntity<>(new Response("external order created", res), HttpStatus.OK);
-//    }
+    
+    @ApiOperation(value = "Api to create order using external channel")
+    @PostMapping("/order/channel/create-order")
+    public ResponseEntity<Response> createOrderChannel(@RequestBody @Valid OrderChannelRequestForm orderRequest) {
+        List<OrderItemPojo> res = orderDto.createOrderExternalChannel(orderRequest);
+        return new ResponseEntity<>(new Response("external order created", res), HttpStatus.OK);
+    }
+    
     
     @ApiOperation(value = "Api to allocate OrderPojo by passing order Id")
     @PostMapping("/order/{orderId}/allocate-orders")

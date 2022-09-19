@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@XmlRootElement(name = "OrderItemDataLisr")
+@XmlRootElement(name = "OrderItemDataList")
 public class OrderItemDataList {
     private LocalDate time;
     private Long orderId;

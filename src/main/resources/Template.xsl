@@ -54,7 +54,7 @@
                             <fo:table-row>
                                 <fo:table-cell text-align="center">
                                     <fo:block>Channel Order Id:
-                                        <xsl:value-of select="channelPojo-orderId"/>
+                                        <xsl:value-of select="channel-orderId"/>
                                     </fo:block>
                                 </fo:table-cell>
                                 <fo:table-cell text-align="center">

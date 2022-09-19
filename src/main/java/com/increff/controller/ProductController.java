@@ -3,7 +3,6 @@ package com.increff.controller;
 import com.increff.Dto.ProductDto;
 import com.increff.Model.Response;
 import com.increff.Pojo.ProductPojo;
-import com.increff.Service.ProductApi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +17,11 @@ import java.util.List;
 @Api
 @RequestMapping("/api")
 public class ProductController {
-    
-    private ProductApi productApi;
+    //TODO remove response entity
     
     @Autowired
     private ProductDto productDto;
     
-    @Autowired
-    public ProductController(ProductApi productApi) {
-        this.productApi = productApi;
-    }
     
     @ApiOperation(value = "Api to upload product details by CSV file")
     @PostMapping("/products/{clientId}/upload-product-details")

@@ -7,13 +7,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="employee-spring" />
         <module name="Toy_Assure" />
+        <module name="employee-spring" />
+        <module name="Commons" />
+        <module name="Channel" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Channel" target="1.7" />
-      <module name="Commons" target="1.8" />
+      <module name="ToyAssureBackend" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
