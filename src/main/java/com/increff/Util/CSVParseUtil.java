@@ -1,6 +1,6 @@
 package com.increff.Util;
 
-import com.increff.Exception.ApiGenericException;
+import com.increff.common.Exception.ApiGenericException;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;

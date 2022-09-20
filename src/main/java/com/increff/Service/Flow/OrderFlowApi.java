@@ -1,16 +1,16 @@
 package com.increff.Service.Flow;
 
 import com.increff.Constants.Status;
-import com.increff.Exception.ApiGenericException;
 import com.increff.Model.Helper.DtoHelper;
 import com.increff.Model.OrderAllocatedData;
 import com.increff.Model.OrderItemCsvForm;
-import com.increff.Model.OrderItemForm;
 import com.increff.Pojo.InventoryPojo;
 import com.increff.Pojo.OrderItemPojo;
 import com.increff.Pojo.OrderPojo;
 import com.increff.Pojo.ProductPojo;
 import com.increff.Service.*;
+import com.increff.common.Exception.ApiGenericException;
+import com.increff.common.Model.OrderItemForm;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,7 +84,6 @@ public class OrderFlowApi {
             return new OrderAllocatedData(true, res);
         }
         return new OrderAllocatedData(false, res);
-        
     }
     
     private Long updateInventoryDataAfterOrderAllocation(OrderItemPojo orderItemPojo, InventoryPojo inventoryPojo) {
@@ -116,11 +115,13 @@ public class OrderFlowApi {
         return orderItemPojoList;
     }
     
-    private List<OrderItemPojo> upsertOrderItemDetailsExternal(Long clientId, Long orderId, Long channelId, List<OrderItemForm> orderItems) {
+    private List<OrderItemPojo> upsertOrderItemDetailsExternal(Long clientId, Long orderId, Long channelId,
+                                                               List<OrderItemForm> orderItems) {
         List<OrderItemPojo> orderItemPojoList = new ArrayList<>();
         List<String> skuIdsNotPresent = new ArrayList<>();
         for (OrderItemForm order : orderItems) {
-            Long globalSkuId = channelApi.getGlobalSkuIDByClientIdAndChannelIdAndSkuId(clientId, channelId, order.getChannelSkuId());
+            Long globalSkuId = channelApi.getGlobalSkuIDByClientIdAndChannelIdAndSkuId(clientId, channelId,
+                    order.getChannelSkuId());
             if (globalSkuId == null) {
                 skuIdsNotPresent.add(order.getChannelSkuId());
             } else {

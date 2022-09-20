@@ -13,7 +13,6 @@ import java.util.Objects;
 
 @Service
 public class ProductFlowApi {
-    // todo validate calls data,modify logic to update product sku
     @Autowired
     private ProductApi productApi;
     @Autowired
@@ -28,9 +27,9 @@ public class ProductFlowApi {
         for (ProductPojo product : productPojos) {
             ProductPojo productPojo = productApi.getProductByClientIdAndClientSku(clientId, product.getClientSkuId());
             if (Objects.isNull(productPojo)) {
-                productsToBeAdded.add(productPojo);
+                productsToBeAdded.add(product);
             } else {
-                productsToBeAdded.add(productPojo);
+                productsToBeUpdated.add(productPojo);
             }
         }
         result.addAll(productApi.addProductsData(productsToBeAdded));

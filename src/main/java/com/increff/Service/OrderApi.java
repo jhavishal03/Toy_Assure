@@ -2,9 +2,9 @@ package com.increff.Service;
 
 import com.increff.Dao.OrderDao;
 import com.increff.Dao.OrderItemDao;
-import com.increff.Exception.ApiGenericException;
 import com.increff.Pojo.OrderItemPojo;
 import com.increff.Pojo.OrderPojo;
+import com.increff.common.Exception.ApiGenericException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,12 +47,7 @@ public class OrderApi {
     
     
     public List<OrderItemPojo> getOrderDetailsByOrderId(Long orderId) {
-        logger.info("getOrderDetailsBy Id started");
-        OrderPojo orderPojo = this.getOrderPojoById(orderId);
-        
         List<OrderItemPojo> orderItemPojoList = orderItemDao.fetchOrderItemByOrderId(orderId);
-        logger.info("OrderPojo details are" + orderItemPojoList);
-        logger.info("getOrderDetailsBy Id End");
         return orderItemPojoList;
     }
     

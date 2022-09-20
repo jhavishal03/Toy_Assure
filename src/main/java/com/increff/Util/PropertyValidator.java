@@ -1,7 +1,7 @@
 package com.increff.Util;
 
-import com.increff.Exception.ApiGenericException;
 import com.increff.Model.BinSkuForm;
+import com.increff.common.Exception.ApiGenericException;
 
 import java.util.List;
 

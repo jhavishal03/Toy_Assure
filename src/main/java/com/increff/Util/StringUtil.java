@@ -7,7 +7,7 @@ public class StringUtil {
     }
     
     public static String toLowerCase(String s) {
-        return s == null ? null : s.trim().toLowerCase();
+        return s == null ? null : s.toLowerCase().trim();
     }
     
     public static String toUpperCase(String s) {

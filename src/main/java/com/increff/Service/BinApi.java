@@ -1,9 +1,9 @@
 package com.increff.Service;
 
 import com.increff.Dao.BinDao;
-import com.increff.Exception.ApiGenericException;
 import com.increff.Model.BinSkuForm;
 import com.increff.Pojo.BinSkuPojo;
+import com.increff.common.Exception.ApiGenericException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +39,8 @@ public class BinApi {
                 binId);
         return getSavedBin;
     }
-
-//    @Transactional
+    
+    //    @Transactional
 //    public List<BinSkuPojo> uploadBinData(Long clientId, List<BinSkuForm> binSkus) {
 //        Set<BinSkuPojo> entitiesToBeNewlyAdded = new HashSet<>();
 //        List<BinSkuPojo> result = new ArrayList<>();
@@ -80,7 +80,6 @@ public class BinApi {
 //        result.addAll(binDao.uploadBinDataInventory(entitiesToBeNewlyAdded));
 //        return result;
 //    }
-    
     public List<BinSkuPojo> addBinSkuDataList(Set<BinSkuPojo> binSkuPojos) {
         return binDao.uploadBinDataInventory(binSkuPojos);
     }

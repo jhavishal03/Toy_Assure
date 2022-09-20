@@ -3,20 +3,23 @@ package com.increff.Dto;
 import com.increff.Constants.InvoiceType;
 import com.increff.Constants.Status;
 import com.increff.Constants.UserType;
-import com.increff.Exception.ApiGenericException;
 import com.increff.Model.Helper.DtoHelper;
 import com.increff.Model.OrderAllocatedData;
-import com.increff.Model.OrderChannelRequestForm;
 import com.increff.Model.OrderItemCsvForm;
-import com.increff.Model.OrderItemForm;
 import com.increff.Pojo.ChannelPojo;
 import com.increff.Pojo.OrderItemPojo;
 import com.increff.Pojo.OrderPojo;
 import com.increff.Pojo.UserPojo;
-import com.increff.Service.*;
+import com.increff.Service.ChannelApi;
 import com.increff.Service.Flow.OrderFlowApi;
+import com.increff.Service.InvoiceApi;
+import com.increff.Service.OrderApi;
+import com.increff.Service.UserApi;
 import com.increff.Util.CSVParseUtil;
 import com.increff.Util.StringUtil;
+import com.increff.common.Exception.ApiGenericException;
+import com.increff.common.Model.OrderChannelRequestForm;
+import com.increff.common.Model.OrderItemForm;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,41 +40,37 @@ public class OrderDto {
     
     private UserApi userApi;
     
-    private BinApi binApi;
     
-    private InventoryApi inventoryApi;
-    @Autowired
     private InvoiceApi invoiceApi;
-    @Autowired
     private ChannelApi channelApi;
-    @Autowired
+    
     private OrderFlowApi orderFlowApi;
     
     @Autowired
-    public OrderDto(OrderApi orderApi, UserApi userApi, BinApi binApi, InventoryApi inventoryApi) {
+    public OrderDto(OrderApi orderApi, UserApi userApi, InvoiceApi invoiceApi,
+                    ChannelApi channelApi, OrderFlowApi orderFlowApi) {
         this.orderApi = orderApi;
         this.userApi = userApi;
-        this.binApi = binApi;
-        this.inventoryApi = inventoryApi;
+        this.invoiceApi = invoiceApi;
+        this.channelApi = channelApi;
+        this.orderFlowApi = orderFlowApi;
     }
     
     public List<OrderItemPojo> createOrderInternalChannel(String customerName, String clientName,
                                                           String channelOrderId, MultipartFile orderItems) {
         
-        StringUtil.toLowerCase(customerName);
-        StringUtil.toLowerCase(clientName);
-        StringUtil.toLowerCase(channelOrderId);
         List<OrderItemCsvForm> orders = parseCsvOrder(orderItems);
-        Optional<UserPojo> customer = userApi.getUserByNameAndType(customerName, UserType.CUSTOMER);
+        Optional<UserPojo> customer = userApi.getUserByNameAndType(StringUtil.toLowerCase(customerName),
+                UserType.CUSTOMER);
         //checking client exist or not
-        Optional<UserPojo> client = userApi.getUserByNameAndType(clientName, UserType.CLIENT);
-        if (orderApi.isChannelOrderDuplicate(channelOrderId)) {
+        Optional<UserPojo> client = userApi.getUserByNameAndType(StringUtil.toLowerCase(clientName), UserType.CLIENT);
+        if (orderApi.isChannelOrderDuplicate(StringUtil.toLowerCase(channelOrderId))) {
             throw new ApiGenericException("channel OrderId duplicate");
         }
         ChannelPojo channelPojo = channelApi.getChannelByNameAndType("INTERNAL", InvoiceType.SELF);
         
         return orderFlowApi.upsertOrderInternal(customer.get().getUserId(), client.get().getUserId(),
-                channelOrderId, channelPojo.getChannelId(), orders);
+                StringUtil.toLowerCase(channelOrderId), channelPojo.getChannelId(), orders);
         
     }
     

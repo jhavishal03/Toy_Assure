@@ -87,6 +87,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.increff.common</groupId>
+            <artifactId>Commons</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../Desktop/Commons/target/Commons.jar</systemPath>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>

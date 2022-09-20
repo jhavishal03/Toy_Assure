@@ -2,9 +2,9 @@ package com.increff.Service;
 
 import com.increff.Constants.InvoiceType;
 import com.increff.Dao.ChannelDao;
-import com.increff.Exception.ApiGenericException;
 import com.increff.Pojo.ChannelListingPojo;
 import com.increff.Pojo.ChannelPojo;
+import com.increff.common.Exception.ApiGenericException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +26,7 @@ public class ChannelApi {
         return channelDao.saveChannel(channelPojo);
     }
     
+    @Transactional
     public ChannelListingPojo addChannelListing(ChannelListingPojo channelListingPojo) {
         return channelDao.addSingleChannelListing(channelListingPojo);
     }

@@ -14,6 +14,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 public class OrderItemPojo extends BaseModel {
+    //todo orderquantity nullable false
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemId;
@@ -21,7 +22,7 @@ public class OrderItemPojo extends BaseModel {
     private Long orderId;
     @Column(nullable = false)
     private Long globalSkuId;
-    private Long orderedQuantity = 0L;
+    private Long orderedQuantity;
     
     @ColumnDefault("0")
     private Long allocatedQuantity = 0L;

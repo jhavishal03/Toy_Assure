@@ -2,10 +2,9 @@ package com.increff.controller;
 
 import com.increff.Dto.OrderDto;
 import com.increff.Model.OrderAllocatedData;
-import com.increff.Model.OrderChannelRequestForm;
 import com.increff.Model.Response;
 import com.increff.Pojo.OrderItemPojo;
-import com.increff.Service.OrderApi;
+import com.increff.common.Model.OrderChannelRequestForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +24,7 @@ import java.util.List;
 @RequestMapping("/api")
 @Validated
 public class OrderController {
-    @Autowired
-    private OrderApi orderApi;
+    
     
     @Autowired
     private OrderDto orderDto;

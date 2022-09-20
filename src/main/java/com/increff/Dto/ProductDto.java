@@ -1,7 +1,6 @@
 package com.increff.Dto;
 
 import com.increff.Constants.UserType;
-import com.increff.Exception.ApiGenericException;
 import com.increff.Model.Helper.ProductHelper;
 import com.increff.Model.ProductForm;
 import com.increff.Pojo.ProductPojo;
@@ -9,6 +8,7 @@ import com.increff.Service.Flow.ProductFlowApi;
 import com.increff.Service.ProductApi;
 import com.increff.Service.UserApi;
 import com.increff.Util.CSVParseUtil;
+import com.increff.common.Exception.ApiGenericException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +38,7 @@ public class ProductDto {
     
     public List<ProductPojo> uploadProductDetails(Long clientId, MultipartFile file) throws IOException {
         List<ProductForm> productForms = this.parseProductCsv(file);
-        List<ProductPojo> productPojos = ProductHelper.productDtoToProductPojo(clientId, productForms);
+        List<ProductPojo> productPojos = ProductHelper.productFormToProductPojo(clientId, productForms);
         Optional.ofNullable(userApi.findUserById(clientId, UserType.CLIENT));
         return productFlowApi.updateProductsAndInventory(clientId, productPojos);
     }

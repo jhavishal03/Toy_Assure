@@ -1,7 +1,7 @@
 package com.increff.controller.Exception;
 
-import com.increff.Exception.ApiGenericException;
 import com.increff.Exception.CSVFileParsingException;
+import com.increff.common.Exception.ApiGenericException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

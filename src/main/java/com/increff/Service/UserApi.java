@@ -3,8 +3,8 @@ package com.increff.Service;
 import com.increff.Constants.Constants;
 import com.increff.Constants.UserType;
 import com.increff.Dao.UserDao;
-import com.increff.Exception.ApiGenericException;
 import com.increff.Pojo.UserPojo;
+import com.increff.common.Exception.ApiGenericException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
